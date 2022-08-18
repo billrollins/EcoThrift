@@ -75,6 +75,19 @@ DATABASES = {
         'NAME': 'db.sqlite3',
     }
 }
+DATABASES = {
+
+    'default': {
+
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'd9h60aj6kuj49u',
+        'USER': 'uangbgnigmgeft',
+        'PASSWORD': '7bdd71e77c803e5a8d0b88db00b7d452144a364ea9337dd1f9cbd8b466cd52ed',
+        'HOST': 'ec2-52-86-56-90.compute-1.amazonaws.com',
+        'PORT': '5432',
+    }
+
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
