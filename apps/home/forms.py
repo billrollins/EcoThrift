@@ -4,31 +4,11 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from django import forms
-from .models import Profile
+from django.forms import ModelForm
+from .models import Employee
 
-class ProfileForm(forms.ModelForm):
-    bio = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                "placeholder": "Bio",
-                "class": "form-control"
-            }
-        ))
-    location  = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                "placeholder": "Location ",
-                "class": "form-control"
-            }
-        ))
-    birth_date  = forms.DateField(
-        widget=forms.DateInput(
-            attrs={
-                "placeholder": "Birth Date",
-                "class": "form-control"
-            }
-        ))
-
-    class Meta:
-        model = Profile
-        fields = ('bio', 'location', 'birth_date')
+# Create a venue form
+class EmployeeForm(ModelForm):
+	class Meta:
+		model = Employee
+		fields = ('img', 'location', 'birth_date')

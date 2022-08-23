@@ -7,6 +7,8 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Profile
+from .models import Employee, Consignor, Shopper
 
-admin.site.register(Profile)
+admin.site.register(Employee)
+admin.site.register(Consignor)
+admin.site.register(Shopper)

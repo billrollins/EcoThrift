@@ -3,13 +3,18 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from datetime import timedelta
 import os
 from decouple import config
 from unipath import Path
+from google.oauth2 import service_account
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = Path(__file__).parent
-CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CORE_DIR = Path(__file__).parent
+
+print('BASE_DIR', BASE_DIR)
+print('CORE_DIR', CORE_DIR)
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
@@ -29,7 +34,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.home'  # Enable the inner home (home)
+    'apps.home'
 ]
 
 MIDDLEWARE = [
@@ -46,7 +51,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'core.urls'
 LOGIN_REDIRECT_URL = "home"  # Route defined in home/urls.py
 LOGOUT_REDIRECT_URL = "home"  # Route defined in home/urls.py
-TEMPLATE_DIR = os.path.join(CORE_DIR, "apps/templates")  # ROOT dir for templates
+TEMPLATE_DIR = os.path.join(BASE_DIR, "apps/templates")  # ROOT dir for templates
 
 TEMPLATES = [
     {
@@ -59,10 +64,12 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.settings_context',
             ],
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
@@ -70,13 +77,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
-    }
-}
-DATABASES = {
-
     'default': {
 
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -86,8 +86,23 @@ DATABASES = {
         'HOST': 'ec2-52-86-56-90.compute-1.amazonaws.com',
         'PORT': '5432',
     }
-
 }
+
+#
+# Google Cloud Storage (GCS) Settings
+#
+    
+GS_BUCKET_NAME = "django_web"    
+DEFAULT_FILE_STORAGE = "storages.backends.gcloud.GoogleCloudStorage"    
+MEDIA_URL = "https://storage.cloud.google.com/django_web/" 
+
+# May be not needed.  Looks like model path is saved in file fields
+EMPLOYEE_MEDIA_URL = os.path.join(MEDIA_URL, 'employee/')
+
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(os.path.join(BASE_DIR, 'ecothrift-web-2d1aa76a62eb.json'))
+GS_EXPIRATION = timedelta(minutes=5)    
+GS_BLOB_CHUNK_SIZE = 1024 * 256 * 40 # Needed for uploading large streams, entirely optional otherwise
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -125,14 +140,19 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-STATIC_ROOT = os.path.join(CORE_DIR, 'staticfiles')
-STATIC_URL = '/static/'
 
-# Extra places for collectstatic to find static files.
-STATICFILES_DIRS = (
-    os.path.join(CORE_DIR, 'apps/static'),
-)
 
+# App static files, relative path; needs to end in /
+STATIC_URL = 'static/'
+
+# Global static files, absolute path; doesn't end in /
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'apps/static')]
+
+# Save static files to one directory: locally
+# STATIC_ROOT = os.path.join(CORE_DIR, 'staticfiles')
+
+# Save static files to one directory: remote
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
 #############################################################
 #############################################################

@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "ecothrift-web",
+  "private_key_id": "2d1aa76a62ebdc527310ba08c0e451fcfba2fee2",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDLQAn5Zg6nWj0Z\nuXDh/KTSBwTInUoUSPY2HK7+FZ7vNb4a5ff20X5NvaukAFQSpIG4NWCFMYEyYE2q\ncE2e3rfzQtQX1UMjIhh+omr2NOj44+C4hN6bSUhCFPaCfEYUN/K2oztIByUBZUpA\nL0mBagSV+uQjXdYYId6/D5QhR2uaOpajZDpwVU1HpJ+232j9uzgVALmHFIWd1BKN\nTQBK4SNDJNlITsualqJFGdqbtQMizJgxlM0NsFydlTBKLd0lpByS0GZ9yGJVk9Nq\naFOex7w88EYI+wWU0VbiKHVVMMDlTO7XAtHATZmj1HMxtS4evrXr5CmHbFt5mh25\n2oyvGPtzAgMBAAECggEAMAs5sFnXAekbQ07p54lkXn8pOtCvV58tj/n0xXvP32SZ\nRNtyY0X+8JpyjahEN0nqneQEJkfe7c0E3tKADps/6UE1SFLxdUcUei6jUQKNxXN8\nRbGmuxc1/OTeplaA7DuTZGeuVibWMP/D7usemXg5kEhHkDKYroinEgu5LKqovUJL\nJxxb0C3+KN54eCK7iAqopZIPlodt58G1SnpxE2/Z+KqkQzJP2TeG2gscc1T+MtAZ\nibOKPhbgp8gWCV9jGLGYjwDkXJ0v7dbY3ceA/rdov3ojDpW7yxXiEIeI10hHRKTU\nwfweybVnLxYeRGIdo84YnTPI0iMy/UcSnST1aRCLXQKBgQDwcHqem6bcEa5Q2aFf\nVdtnhplb4/J4bwkeYDJYmBdX6DJ6VC8LgMtSTeMSYKGWbsuwx4gvkJYsUu4znhfS\n0WbSvrhM6GPArd3tjXhmigXmIJP2rKYo7kno1h4i/IWvLMJS/lj/cnqoejuHe57k\nE1edhOJtkLyrBPX+KhV7x+OJnQKBgQDYZ2vP3BaBBxYWs5yu2GW5M88qiBbZN1v2\nKhWdLp74iOsAeTd4uD9/9kGSvVpod7b25tJKW0gRGQGyYCmQvEEJEqjJ2XOHOP7W\nMe/KE7v0OLg/Ub4HvjCvySLuCICoD2Eywebk47ATXqvYMeunY22yzw8vc4JM/aq+\nUMZJuYJUTwKBgEEMDQBP18p9tg0Fc5TZI2xUi7TCbFyMnYjsOXKiYt5TYSSbFcck\n5tyzWZUlM1IBU3XV5VAI67e+D9dDE+ri39Bv7GhSDnqYDwwvU71Z5dKmSaFYf/Ne\n0/v7wVdxvbDwiPnu+aDSFcDyoJw8o3XMjc19n8xIdeJGi05hkEJWh4Y5AoGBANX0\nMoCY7dr1wZ4CSMgJhVE9avZ3BHgQJqjT5Pi5rky1OfsG3ZRKPeXq99v3wFoG+mtT\nvNftNexJmAbe0lmZ9obc3upqRrGL5VCqoJRfPHXyWh+oVsRbAtHZf+Jtn54JTqUb\nVog4oM4VzLr8aCvfvwaJd08H2ez644Q0Ykdj1Po7AoGAGIeH/JRTtKgbawwGDmQK\nUPEgDMp+840d1wSCm6xHvspVSHjS+SfjfgwxYgZUQtnZalitM/KsGhgKPn3UnPGZ\naXwBebm3oNSrLMzNnstOpgdHKI6bRtQvqib140cosq7LxrIBlc7v7JpfOMqcWfsc\nGLrZwWC7M9tFF3iwd6eKv8I=\n-----END PRIVATE KEY-----\n",
+  "client_email": "django-web@ecothrift-web.iam.gserviceaccount.com",
+  "client_id": "100338428524182945783",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/django-web%40ecothrift-web.iam.gserviceaccount.com"
+}

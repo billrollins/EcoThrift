@@ -9,8 +9,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from ..authentication.forms import SignUpForm
-from .forms import ProfileForm
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserChangeForm
+
+from .models import Employee, Consignor, Shopper
+from .forms import EmployeeForm
 
 @login_required(login_url="/login/")
 def index(request):
@@ -48,30 +51,30 @@ def pages(request):
         html_template = loader.get_template('home/page-404.html')
         return HttpResponse(html_template.render(context, request))
 
-    except:
-        #html_template = loader.get_template('home/page-500.html')
-        return HttpResponse(html_template.render(context, request))
+    # except:
+    #     #html_template = loader.get_template('home/page-500.html')
+    #     pass
+
+    html_template = loader.get_template('home/index.html')
+    return HttpResponse(html_template.render(context, request))
+
 
 def update_profile(context, request, html_template):
-    print('A')
+    context['title'] = 'DNC'
+    
     if request.method == 'POST':
-        user_form = SignUpForm(request.POST, instance=request.user)
-        profile_form = ProfileForm(request.POST, instance=request.user.profile)
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            return redirect('/home-profile.html')
-    else:
-        print('B')
-        user_form = SignUpForm(instance=request.user)
-        print('c')
-        profile_form = ProfileForm(instance=request.user.profile)        
-        print('d')
-        context['user_form']     = user_form
-        print('e')
-        context['profile_form'] = profile_form 
-        print('f')
-    print('g')
+
+        user = request.user
+        user.first_name = request.POST['first_name']
+        user.last_name = request.POST['last_name']
+        user.email = request.POST['email']
+        user.employee.img = request.FILES.get('img')
+        user.employee.location = request.POST['location']
+        user.employee.birth_date = request.POST['birth_date']
+        user.employee.save()
+        user.save()
+        return redirect('home-profile.html')
+
     return HttpResponse(html_template.render(context, request))
 
 
