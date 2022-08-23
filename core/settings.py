@@ -146,7 +146,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'apps/static')]
 
 # Save static files to one directory: locally
-# STATIC_ROOT = os.path.join(CORE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(CORE_DIR, 'staticfiles')
 
 # Save static files to one directory: remote
 STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
