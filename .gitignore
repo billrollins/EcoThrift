@@ -16,8 +16,7 @@ env
 venv
 
 # staticfiles
-*staticfiles/*
-*static/*
+apps/static
 
 
 # other
