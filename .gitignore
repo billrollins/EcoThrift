@@ -15,17 +15,18 @@ __pycache__/
 env
 venv
 
+# staticfiles
+*staticfiles/*
+*static/*
+
+
 # other
 .DS_Store
 
 # javascript
 package-lock.json
-
-staticfiles/*
-!staticfiles/.gitkeep 
 .vscode/symbols.json
 
 apps/static/assets/node_modules
 apps/static/assets/yarn.lock
 apps/static/assets/.temp
-
