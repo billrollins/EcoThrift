@@ -17,6 +17,7 @@ venv
 
 # staticfiles
 apps/static/*
+!apps/static/.gitkeep
 
 
 # other
