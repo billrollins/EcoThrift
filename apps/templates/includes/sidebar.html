@@ -16,8 +16,8 @@
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#HomePages" 
 
-            class="nav-link {% if active_menu == 'dashboard' %} active {% endif %}" 
-            aria-expanded="{% if active_menu == 'dashboard' %} true {% else %} false {% endif %}"
+            class="nav-link {% if menu == 'dashboard' %} active {% endif %}" 
+            aria-expanded="{% if menu == 'dashboard' %} true {% else %} false {% endif %}"
 
             aria-controls="HomePages" role="button">
             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
@@ -37,28 +37,28 @@
             </div>
             <span class="nav-link-text ms-1">Home</span>
           </a>
-          <div class="collapse {% if active_menu == 'home' %} show {% endif %}" id="HomePages">
+          <div class="collapse {% if menu == 'home' %} show {% endif %}" id="HomePages">
             <ul class="nav ms-4 ps-3">
               <li class="nav-item ">
-                <a class="nav-link {% if segment == 'home-dashboard.html'  %} active {% endif %}" href="/home-dashboard.html">
+                <a class="nav-link {% if page == 'home-dashboard.html'  %} active {% endif %}" href="/home-dashboard.html">
                   <span class="sidenav-mini-icon"> D </span>
                   <span class="sidenav-normal"> Dashboard </span>
                 </a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link {% if segment == 'home-profile.html'  %} active {% endif %}" href="/home-profile.html">
+                <a class="nav-link {% if page == 'home-profile.html'  %} active {% endif %}" href="/home-profile.html">
                   <span class="sidenav-mini-icon"> P </span>
                   <span class="sidenav-normal"> Profile </span>
                 </a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link {% if segment == 'home-timeclock.html'  %} active {% endif %}" href="/home-timeclock.html">
+                <a class="nav-link {% if page == 'home-timeclock.html'  %} active {% endif %}" href="/home-timeclock.html">
                   <span class="sidenav-mini-icon"> T </span>
                   <span class="sidenav-normal"> TimeClock </span>
                 </a>
               </li>
               <li class="nav-item ">
-                <a class="nav-link {% if segment == 'home-calendar.html'  %} active {% endif %}" href="/home-calendar.html">
+                <a class="nav-link {% if page == 'home-calendar.html'  %} active {% endif %}" href="/home-calendar.html">
                   <span class="sidenav-mini-icon"> C </span>
                   <span class="sidenav-normal"> Calendar </span>
                 </a>
@@ -68,15 +68,15 @@
                   <span class="sidenav-mini-icon"> E </span>
                   <span class="sidenav-normal"> Events <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'home-events-' in segment %} show {% endif %}" id="Events">
+                <div class="collapse {% if 'home-events-' in page %} show {% endif %}" id="Events">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'home-events-new.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'home-events-new.html' %} active {% endif %}">
                       <a class="nav-link " href="/home-events-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New Event </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'home-events-view.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'home-events-view.html' %} active {% endif %}">
                       <a class="nav-link " href="/home-events-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Events </span>
@@ -91,8 +91,8 @@
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#OperationsPages" 
 
-            class="nav-link {% if active_menu == 'operations' %} active {% endif %}" 
-            aria-expanded="{% if active_menu == 'operations' %} true {% else %} false {% endif %}"
+            class="nav-link {% if menu == 'operations' %} active {% endif %}" 
+            aria-expanded="{% if menu == 'operations' %} true {% else %} false {% endif %}"
 
             aria-controls="OperationsPages" role="button">
             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
@@ -112,22 +112,22 @@
             </div>
             <span class="nav-link-text ms-1">Operations</span>
           </a>
-          <div class="collapse {% if active_menu == 'operations' %} show {% endif %}" id="OperationsPages">
+          <div class="collapse {% if menu == 'operations' %} show {% endif %}" id="OperationsPages">
             <ul class="nav ms-4 ps-3">
               <li class="nav-item ">
                 <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Inventory">
                   <span class="sidenav-mini-icon"> I </span>
                   <span class="sidenav-normal"> Inventory <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'operations-inventory-' in segment %} show {% endif %}" id="Inventory">
+                <div class="collapse {% if 'operations-inventory-' in page %} show {% endif %}" id="Inventory">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'operations-inventory-new.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'operations-inventory-new.html' %} active {% endif %}">
                       <a class="nav-link " href="/operations-inventory-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New Inventory </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'operations-inventory-view.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'operations-inventory-view.html' %} active {% endif %}">
                       <a class="nav-link " href="/operations-inventory-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Inventory </span>
@@ -141,16 +141,16 @@
                   <span class="sidenav-mini-icon"> O </span>
                   <span class="sidenav-normal"> Orders <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'operations-orders-' in segment %} show {% endif %}" id="Orders">
+                <div class="collapse {% if 'operations-order-' in page %} show {% endif %}" id="Orders">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'operations-orders-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-orders-new.html">
+                    <li class="nav-item {% if page == 'operations-order-new.html' %} active {% endif %}">
+                      <a class="nav-link " href="/operations-order-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New Order </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'operations-orders-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-orders-view.html">
+                    <li class="nav-item {% if page == 'operations-order-view.html' %} active {% endif %}">
+                      <a class="nav-link " href="/operations-order-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Orders </span>
                       </a>
@@ -163,15 +163,15 @@
                   <span class="sidenav-mini-icon"> D </span>
                   <span class="sidenav-normal"> DropOff <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'operations-dropoff-' in segment %} show {% endif %}" id="DropOff">
+                <div class="collapse {% if 'operations-dropoff-' in page %} show {% endif %}" id="DropOff">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'operations-dropoff-new.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'operations-dropoff-new.html' %} active {% endif %}">
                       <a class="nav-link " href="/operations-dropoff-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New DropOff </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'operations-dropoff-view.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'operations-dropoff-view.html' %} active {% endif %}">
                       <a class="nav-link " href="/operations-dropoff-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View DropOffs </span>
@@ -185,15 +185,15 @@
                   <span class="sidenav-mini-icon"> C </span>
                   <span class="sidenav-normal"> CheckIn <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'operations-checkin-' in segment %} show {% endif %}" id="CheckIn">
+                <div class="collapse {% if 'operations-checkin-' in page %} show {% endif %}" id="CheckIn">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'operations-checkin-new.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'operations-checkin-new.html' %} active {% endif %}">
                       <a class="nav-link " href="/operations-checkin-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New CheckIn </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'operations-checkin-view.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'operations-checkin-view.html' %} active {% endif %}">
                       <a class="nav-link " href="/operations-checkin-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View CheckIns </span>
@@ -207,15 +207,15 @@
                   <span class="sidenav-mini-icon"> C </span>
                   <span class="sidenav-normal"> CheckOut <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'operations-checkout-' in segment %} show {% endif %}" id="CheckOut">
+                <div class="collapse {% if 'operations-checkout-' in page %} show {% endif %}" id="CheckOut">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'operations-checkout-new.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'operations-checkout-new.html' %} active {% endif %}">
                       <a class="nav-link " href="/operations-checkout-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New CheckOut </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'operations-checkout-view.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'operations-checkout-view.html' %} active {% endif %}">
                       <a class="nav-link " href="/operations-checkout-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View CheckOuts </span>
@@ -230,8 +230,8 @@
         <li class="nav-item">
           <a data-bs-toggle="collapse" href="#ManagementPages" 
 
-            class="nav-link {% if active_menu == 'management' %} active {% endif %}" 
-            aria-expanded="{% if active_menu == 'management' %} true {% else %} false {% endif %}"
+            class="nav-link {% if menu == 'management' %} active {% endif %}" 
+            aria-expanded="{% if menu == 'management' %} true {% else %} false {% endif %}"
 
             aria-controls="ManagementPages" role="button">
             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
@@ -252,23 +252,23 @@
             </div>
             <span class="nav-link-text ms-1">Management</span>
           </a>
-          <div class="collapse {% if active_menu == 'management' %} show {% endif %}" id="ManagementPages">
+          <div class="collapse {% if menu == 'management' %} show {% endif %}" id="ManagementPages">
             <ul class="nav ms-4 ps-3">
               <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Employees">
+                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Employee">
                   <span class="sidenav-mini-icon"> E </span>
                   <span class="sidenav-normal"> Employees <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'management-employees-' in segment %} show {% endif %}" id="Employees">
+                <div class="collapse {% if 'management-employee-' in page %} show {% endif %}" id="Employee">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'management-employees-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-employees-new.html">
+                    <li class="nav-item {% if page == 'management-employee-new.html' %} active {% endif %}">
+                      <a class="nav-link " href="/management-employee-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Employees </span>
+                        <span class="sidenav-normal"> New Employee </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'management-employees-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-employees-view.html">
+                    <li class="nav-item {% if page == 'management-employee-view.html' %} active {% endif %}">
+                      <a class="nav-link " href="/management-employee-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Employees </span>
                       </a>
@@ -281,16 +281,16 @@
                   <span class="sidenav-mini-icon"> C </span>
                   <span class="sidenav-normal"> Consignors <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'management-consignors-' in segment %} show {% endif %}" id="Consignors">
+                <div class="collapse {% if 'management-consignor-' in page %} show {% endif %}" id="Consignors">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'management-consignors-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-consignors-new.html">
+                    <li class="nav-item {% if page == 'management-consignor-new.html' %} active {% endif %}">
+                      <a class="nav-link " href="/management-consignor-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New Consignor </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'management-consignors-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-consignors-view.html">
+                    <li class="nav-item {% if page == 'management-consignor-view.html' %} active {% endif %}">
+                      <a class="nav-link " href="/management-consignor-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Consignors </span>
                       </a>
@@ -303,16 +303,16 @@
                   <span class="sidenav-mini-icon"> L </span>
                   <span class="sidenav-normal"> Liquidators <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'management-liquidators-' in segment %} show {% endif %}" id="Liquidators">
+                <div class="collapse {% if 'management-liquidator-' in page %} show {% endif %}" id="Liquidators">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'management-liquidators-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-liquidators-new.html">
+                    <li class="nav-item {% if page == 'management-liquidator-new.html' %} active {% endif %}">
+                      <a class="nav-link " href="/management-liquidator-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New Liquidator </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'management-liquidators-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-liquidators-view.html">
+                    <li class="nav-item {% if page == 'management-liquidator-view.html' %} active {% endif %}">
+                      <a class="nav-link " href="/management-liquidator-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Liquidators </span>
                       </a>
@@ -325,15 +325,15 @@
                   <span class="sidenav-mini-icon"> S </span>
                   <span class="sidenav-normal"> Schedule <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'management-schedule-' in segment %} show {% endif %}" id="Schedule">
+                <div class="collapse {% if 'management-schedule-' in page %} show {% endif %}" id="Schedule">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'management-schedule-new.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'management-schedule-new.html' %} active {% endif %}">
                       <a class="nav-link " href="/management-schedule-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New Schedule </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'management-schedule-view.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'management-schedule-view.html' %} active {% endif %}">
                       <a class="nav-link " href="/management-schedule-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Schedules </span>
@@ -347,15 +347,15 @@
                   <span class="sidenav-mini-icon"> V </span>
                   <span class="sidenav-normal"> Vacation <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'management-vacation-' in segment %} show {% endif %}" id="Vacation">
+                <div class="collapse {% if 'management-vacation-' in page %} show {% endif %}" id="Vacation">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'management-vacation-new.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'management-vacation-new.html' %} active {% endif %}">
                       <a class="nav-link " href="/management-vacation-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New Vacation </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'management-vacation-view.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'management-vacation-view.html' %} active {% endif %}">
                       <a class="nav-link " href="/management-vacation-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Vacation </span>
@@ -369,15 +369,15 @@
                   <span class="sidenav-mini-icon"> D </span>
                   <span class="sidenav-normal"> Drawer <b class="caret"></b></span>
                 </a>
-                <div class="collapse {% if 'management-drawer-' in segment %} show {% endif %}" id="Drawer">
+                <div class="collapse {% if 'management-drawer-' in page %} show {% endif %}" id="Drawer">
                   <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if segment == 'management-drawer-new.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'management-drawer-new.html' %} active {% endif %}">
                       <a class="nav-link " href="/management-drawer-new.html">
                         <span class="sidenav-mini-icon text-xs"> N </span>
                         <span class="sidenav-normal"> New Drawer </span>
                       </a>
                     </li>
-                    <li class="nav-item {% if segment == 'management-drawer-view.html' %} active {% endif %}">
+                    <li class="nav-item {% if page == 'management-drawer-view.html' %} active {% endif %}">
                       <a class="nav-link " href="/management-drawer-view.html">
                         <span class="sidenav-mini-icon text-xs"> V </span>
                         <span class="sidenav-normal"> View Drawers </span>
@@ -389,7 +389,126 @@
             </ul>
           </div>
         </li>
-        
+        <!-- Database Pages -->
+        <!-- Stores, Departments, Sections -->
+        <li class="nav-item">
+          <a data-bs-toggle="collapse" href="#DatabasePages" 
+
+            class="nav-link {% if menu == 'database' %} active {% endif %}" 
+            aria-expanded="{% if menu == 'database' %} true {% else %} false {% endif %}"
+
+            aria-controls="DatabasePages" role="button">
+            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
+              <svg width="12px" height="12px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <title>settings</title>
+                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                  <g transform="translate(-2020.000000, -442.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                    <g transform="translate(1716.000000, 291.000000)">
+                      <g transform="translate(304.000000, 151.000000)">
+                        <polygon class="color-background" opacity="0.596981957" points="18.0883333 15.7316667 11.1783333 8.82166667 13.3333333 6.66666667 6.66666667 0 0 6.66666667 6.66666667 13.3333333 8.82166667 11.1783333 15.315 17.6716667"></polygon>
+                        <path class="color-background" d="M31.5666667,23.2333333 C31.0516667,23.2933333 30.53,23.3333333 30,23.3333333 C29.4916667,23.3333333 28.9866667,23.3033333 28.48,23.245 L22.4116667,30.7433333 L29.9416667,38.2733333 C32.2433333,40.575 35.9733333,40.575 38.275,38.2733333 L38.275,38.2733333 C40.5766667,35.9716667 40.5766667,32.2416667 38.275,29.94 L31.5666667,23.2333333 Z" opacity="0.596981957"></path>
+                        <path class="color-background" d="M33.785,11.285 L28.715,6.215 L34.0616667,0.868333333 C32.82,0.315 31.4483333,0 30,0 C24.4766667,0 20,4.47666667 20,10 C20,10.99 20.1483333,11.9433333 20.4166667,12.8466667 L2.435,27.3966667 C0.95,28.7083333 0.0633333333,30.595 0.00333333333,32.5733333 C-0.0583333333,34.5533333 0.71,36.4916667 2.11,37.89 C3.47,39.2516667 5.27833333,40 7.20166667,40 C9.26666667,40 11.2366667,39.1133333 12.6033333,37.565 L27.1533333,19.5833333 C28.0566667,19.8516667 29.01,20 30,20 C35.5233333,20 40,15.5233333 40,10 C40,8.55166667 39.685,7.18 39.1316667,5.93666667 L33.785,11.285 Z"></path>
+                      </g>
+                    </g>
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <span class="nav-link-text ms-1">Database</span>
+          </a>
+          <div class="collapse {% if menu == 'database' %} show {% endif %}" id="DatabasePages">
+            <ul class="nav ms-4 ps-3">
+              <li class="nav-item ">
+                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Store">
+                  <span class="sidenav-mini-icon"> S </span>
+                  <span class="sidenav-normal"> Stores <b class="caret"></b></span>
+                </a>
+                <div class="collapse {% if 'database-store-' in page %} show {% endif %}" id="Store">
+                  <ul class="nav nav-sm flex-column">
+                    <li class="nav-item {% if page == 'database-store-new.html' %} active {% endif %}">
+                      <a class="nav-link " href="/database-store-new.html">
+                        <span class="sidenav-mini-icon text-xs"> N </span>
+                        <span class="sidenav-normal"> New Store </span>
+                      </a>
+                    </li>
+                    <li class="nav-item {% if page == 'database-store-view.html' %} active {% endif %}">
+                      <a class="nav-link " href="/database-store-view.html">
+                        <span class="sidenav-mini-icon text-xs"> V </span>
+                        <span class="sidenav-normal"> View Stores </span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Department">
+                  <span class="sidenav-mini-icon"> D </span>
+                  <span class="sidenav-normal"> Departments <b class="caret"></b></span>
+                </a>
+                <div class="collapse {% if 'database-department-' in page %} show {% endif %}" id="Department">
+                  <ul class="nav nav-sm flex-column">
+                    <li class="nav-item {% if page == 'database-department-new.html' %} active {% endif %}">
+                      <a class="nav-link " href="/database-department-new.html">
+                        <span class="sidenav-mini-icon text-xs"> N </span>
+                        <span class="sidenav-normal"> New Department </span>
+                      </a>
+                    </li>
+                    <li class="nav-item {% if page == 'database-department-view.html' %} active {% endif %}">
+                      <a class="nav-link " href="/database-department-view.html">
+                        <span class="sidenav-mini-icon text-xs"> V </span>
+                        <span class="sidenav-normal"> View Departments </span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Position">
+                  <span class="sidenav-mini-icon"> P </span>
+                  <span class="sidenav-normal"> Positions <b class="caret"></b></span>
+                </a>
+                <div class="collapse {% if 'database-position-' in page %} show {% endif %}" id="Position">
+                  <ul class="nav nav-sm flex-column">
+                    <li class="nav-item {% if page == 'database-position-new.html' %} active {% endif %}">
+                      <a class="nav-link " href="/database-position-new.html">
+                        <span class="sidenav-mini-icon text-xs"> N </span>
+                        <span class="sidenav-normal"> New Position </span>
+                      </a>
+                    </li>
+                    <li class="nav-item {% if page == 'database-position-view.html' %} active {% endif %}">
+                      <a class="nav-link " href="/database-position-view.html">
+                        <span class="sidenav-mini-icon text-xs"> V </span>
+                        <span class="sidenav-normal"> View Position </span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item ">
+                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Section">
+                  <span class="sidenav-mini-icon"> S </span>
+                  <span class="sidenav-normal"> Section <b class="caret"></b></span>
+                </a>
+                <div class="collapse {% if 'database-section-' in page %} show {% endif %}" id="Section">
+                  <ul class="nav nav-sm flex-column">
+                    <li class="nav-item {% if page == 'database-section-new.html' %} active {% endif %}">
+                      <a class="nav-link " href="/database-section-new.html">
+                        <span class="sidenav-mini-icon text-xs"> N </span>
+                        <span class="sidenav-normal"> New Section </span>
+                      </a>
+                    </li>
+                    <li class="nav-item {% if page == 'database-section-view.html' %} active {% endif %}">
+                      <a class="nav-link " href="/database-section-view.html">
+                        <span class="sidenav-mini-icon text-xs"> V </span>
+                        <span class="sidenav-normal"> View Sections </span>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </li>
       </ul>
     </div>
     

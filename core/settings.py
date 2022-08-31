@@ -31,7 +31,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'apps.home'
+    'apps.home',
+    'phone_field',
 ]
 
 MIDDLEWARE = [
@@ -77,10 +78,10 @@ DATABASES = {
     'default': {
 
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'd9h60aj6kuj49u',
-        'USER': 'uangbgnigmgeft',
-        'PASSWORD': '7bdd71e77c803e5a8d0b88db00b7d452144a364ea9337dd1f9cbd8b466cd52ed',
-        'HOST': 'ec2-52-86-56-90.compute-1.amazonaws.com',
+        'NAME': 'd81s54n3hpm6ka',
+        'USER': 'xnqlbmsubcpyaq',
+        'PASSWORD': 'a5240b57619bc9078d1937c1073a16746f8b7a7cffbfd7fc5e9983eeb8c73400',
+        'HOST': 'ec2-3-224-184-9.compute-1.amazonaws.com',
         'PORT': '5432',
     }
 }
