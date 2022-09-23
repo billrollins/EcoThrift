@@ -1,516 +1,69 @@
+{% load custom_tags %}
+<aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 " id="sidenav-main">
+  
+  <div class="sidenav-header">
+    <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+    <a class="navbar-brand m-0" href="/">
+      <img src="/static/assets/img/small_logo.png" class="navbar-brand-img h-100" alt="main_logo">
+      <span class="ms-1 font-weight-bold">Eco-Thrift</span>
+    </a>
+  </div>
 
-  <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-3 " id="sidenav-main">
-    <div class="sidenav-header">
-      <i class="fas fa-times p-3 cursor-pointer text-secondary opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
-      <a class="navbar-brand m-0" href="/">
-        <img src="/static/assets/img/small_logo.png" class="navbar-brand-img h-100" alt="main_logo">
-        <span class="ms-1 font-weight-bold">Eco-Thrift</span>
-      </a>
-    </div>
-    <hr class="horizontal dark mt-0">
-    <div class="collapse navbar-collapse  w-auto h-auto h-100" id="sidenav-collapse-main">
-      <ul class="navbar-nav">
+  <hr class="horizontal dark mt-0">
 
-        <!-- start of my sidebar -->
-        
+  <div class="collapse navbar-collapse  w-auto h-auto h-100" id="sidenav-collapse-main">
+    <ul class="navbar-nav">
+
+      <!-- start of my sidebar -->
+      {% for Menu, SubMenus in sidebar %}
         <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#HomePages" 
+          <a data-bs-toggle="collapse" href="#{{ Menu.MenuId }}"
+            class="nav-link {% if ActiveMenu == Menu.Menu %} active {% endif %}"
+            aria-expanded="{% if ActiveMenu == Menu.Menu %} true {% else %} false {% endif %}"
+            aria-controls="{{ Menu.MenuId }}" role="button">
 
-            class="nav-link {% if menu == 'dashboard' %} active {% endif %}" 
-            aria-expanded="{% if menu == 'dashboard' %} true {% else %} false {% endif %}"
-
-            aria-controls="HomePages" role="button">
-            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-              <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <title>shop </title>
-                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                  <g transform="translate(-1716.000000, -439.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                    <g transform="translate(1716.000000, 291.000000)">
-                      <g transform="translate(0.000000, 148.000000)">
-                        <path class="color-background" d="M46.7199583,10.7414583 L40.8449583,0.949791667 C40.4909749,0.360605034 39.8540131,0 39.1666667,0 L7.83333333,0 C7.1459869,0 6.50902508,0.360605034 6.15504167,0.949791667 L0.280041667,10.7414583 C0.0969176761,11.0460037 -1.23209662e-05,11.3946378 -1.23209662e-05,11.75 C-0.00758042603,16.0663731 3.48367543,19.5725301 7.80004167,19.5833333 L7.81570833,19.5833333 C9.75003686,19.5882688 11.6168794,18.8726691 13.0522917,17.5760417 C16.0171492,20.2556967 20.5292675,20.2556967 23.494125,17.5760417 C26.4604562,20.2616016 30.9794188,20.2616016 33.94575,17.5760417 C36.2421905,19.6477597 39.5441143,20.1708521 42.3684437,18.9103691 C45.1927731,17.649886 47.0084685,14.8428276 47.0000295,11.75 C47.0000295,11.3946378 46.9030823,11.0460037 46.7199583,10.7414583 Z" opacity="0.598981585"></path>
-                        <path class="color-background" d="M39.198,22.4912623 C37.3776246,22.4928106 35.5817531,22.0149171 33.951625,21.0951667 L33.92225,21.1107282 C31.1430221,22.6838032 27.9255001,22.9318916 24.9844167,21.7998837 C24.4750389,21.605469 23.9777983,21.3722567 23.4960833,21.1018359 L23.4745417,21.1129513 C20.6961809,22.6871153 17.4786145,22.9344611 14.5386667,21.7998837 C14.029926,21.6054643 13.533337,21.3722507 13.0522917,21.1018359 C11.4250962,22.0190609 9.63246555,22.4947009 7.81570833,22.4912623 C7.16510551,22.4842162 6.51607673,22.4173045 5.875,22.2911849 L5.875,44.7220845 C5.875,45.9498589 6.7517757,46.9451667 7.83333333,46.9451667 L19.5833333,46.9451667 L19.5833333,33.6066734 L27.4166667,33.6066734 L27.4166667,46.9451667 L39.1666667,46.9451667 C40.2482243,46.9451667 41.125,45.9498589 41.125,44.7220845 L41.125,22.2822926 C40.4887822,22.4116582 39.8442868,22.4815492 39.198,22.4912623 Z"></path>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </svg>
+            <!-- start of my sidebar -->
+            <div class="icon icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center me-2">
+              {{ Menu.Icon|make_icon:"1.3em"}}
             </div>
-            <span class="nav-link-text ms-1">Home</span>
+            <span class="nav-link-text ms-1">{{ Menu.Menu }}</span>
           </a>
-          <div class="collapse {% if menu == 'home' %} show {% endif %}" id="HomePages">
+          <div class="collapse {% if ActiveMenu == Menu.Menu %} show {% endif %}" id="{{ Menu.MenuId }}">
             <ul class="nav ms-4 ps-3">
-              <li class="nav-item ">
-                <a class="nav-link {% if page == 'home-dashboard.html'  %} active {% endif %}" href="/home-dashboard.html">
-                  <span class="sidenav-mini-icon"> D </span>
-                  <span class="sidenav-normal"> Dashboard </span>
-                </a>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link {% if page == 'home-profile.html'  %} active {% endif %}" href="/home-profile.html">
-                  <span class="sidenav-mini-icon"> P </span>
-                  <span class="sidenav-normal"> Profile </span>
-                </a>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link {% if page == 'home-timeclock.html'  %} active {% endif %}" href="/home-timeclock.html">
-                  <span class="sidenav-mini-icon"> T </span>
-                  <span class="sidenav-normal"> TimeClock </span>
-                </a>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link {% if page == 'home-calendar.html'  %} active {% endif %}" href="/home-calendar.html">
-                  <span class="sidenav-mini-icon"> C </span>
-                  <span class="sidenav-normal"> Calendar </span>
-                </a>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Events">
-                  <span class="sidenav-mini-icon"> E </span>
-                  <span class="sidenav-normal"> Events <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'home-events-' in page %} show {% endif %}" id="Events">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'home-events-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/home-events-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Event </span>
+              {% for SubMenu, TextList in SubMenus %}
+                <li class="nav-item ">
+                  {% if SubMenu.Type == '0' %}
+                    {% for Text in TextList %}
+                      <a class="nav-link {% if ActiveSubMenu == SubMenu.SubMenu  %} active {% endif %}" href="{{ Text.HREF }}">
+                        <span class="sidenav-mini-icon"> {{ Text.Mini }} </span>
+                        <span class="sidenav-normal"> {{ Text.Text }} </span>
                       </a>
-                    </li>
-                    <li class="nav-item {% if page == 'home-events-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/home-events-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Events </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
+                    {% endfor %}
+                  {% else %}
+                    <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#{{ SubMenu.SubId }}">
+                      <span class="sidenav-mini-icon"> {{ SubMenu.SubMini }} </span>
+                      <span class="sidenav-normal"> {{ SubMenu.SubMenu }} </span>
+                    </a>                  
+                    <div class="collapse {% if ActiveSubMenu == SubMenu.SubMenu  %} show {% endif %}" id="{{ SubMenu.SubId }}">
+                      <ul class="nav nav-sm flex-column">
+                        {% for Text in TextList %}
+                          <li class="nav-item {% if ActiveText == Text.Text %} active {% endif %}">
+                            <a class="nav-link " href="{{ Text.HREF }}">
+                              <span class="sidenav-mini-icon text-xs"> {{ Text.Mini }} </span>
+                              <span class="sidenav-normal"> {{ Text.Text }} </span>
+                            </a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                  {% endif %}
+                </li>
+              {% endfor %}
             </ul>
-          </div>
+          </div>            
         </li>
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#OperationsPages" 
-
-            class="nav-link {% if menu == 'operations' %} active {% endif %}" 
-            aria-expanded="{% if menu == 'operations' %} true {% else %} false {% endif %}"
-
-            aria-controls="OperationsPages" role="button">
-            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-              <svg class="text-dark" width="12px" height="12px" viewBox="0 0 42 44" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <title>basket</title>
-                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                  <g transform="translate(-1869.000000, -741.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                    <g transform="translate(1716.000000, 291.000000)">
-                      <g id="basket" transform="translate(153.000000, 450.000000)">
-                        <path class="color-background" d="M34.080375,13.125 L27.3748125,1.9490625 C27.1377583,1.53795093 26.6972449,1.28682264 26.222716,1.29218729 C25.748187,1.29772591 25.3135593,1.55890827 25.0860125,1.97535742 C24.8584658,2.39180657 24.8734447,2.89865282 25.1251875,3.3009375 L31.019625,13.125 L10.980375,13.125 L16.8748125,3.3009375 C17.1265553,2.89865282 17.1415342,2.39180657 16.9139875,1.97535742 C16.6864407,1.55890827 16.251813,1.29772591 15.777284,1.29218729 C15.3027551,1.28682264 14.8622417,1.53795093 14.6251875,1.9490625 L7.919625,13.125 L0,13.125 L0,18.375 L42,18.375 L42,13.125 L34.080375,13.125 Z" opacity="0.595377604"></path>
-                        <path class="color-background" d="M3.9375,21 L3.9375,38.0625 C3.9375,40.9619949 6.28800506,43.3125 9.1875,43.3125 L32.8125,43.3125 C35.7119949,43.3125 38.0625,40.9619949 38.0625,38.0625 L38.0625,21 L3.9375,21 Z M14.4375,36.75 L11.8125,36.75 L11.8125,26.25 L14.4375,26.25 L14.4375,36.75 Z M22.3125,36.75 L19.6875,36.75 L19.6875,26.25 L22.3125,26.25 L22.3125,36.75 Z M30.1875,36.75 L27.5625,36.75 L27.5625,26.25 L30.1875,26.25 L30.1875,36.75 Z"></path>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </svg>
-            </div>
-            <span class="nav-link-text ms-1">Operations</span>
-          </a>
-          <div class="collapse {% if menu == 'operations' %} show {% endif %}" id="OperationsPages">
-            <ul class="nav ms-4 ps-3">
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Inventory">
-                  <span class="sidenav-mini-icon"> I </span>
-                  <span class="sidenav-normal"> Inventory <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'operations-inventory-' in page %} show {% endif %}" id="Inventory">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'operations-inventory-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-inventory-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Inventory </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'operations-inventory-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-inventory-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Inventory </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Orders">
-                  <span class="sidenav-mini-icon"> O </span>
-                  <span class="sidenav-normal"> Orders <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'operations-order-' in page %} show {% endif %}" id="Orders">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'operations-order-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-order-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Order </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'operations-order-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-order-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Orders </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#DropOff">
-                  <span class="sidenav-mini-icon"> D </span>
-                  <span class="sidenav-normal"> DropOff <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'operations-dropoff-' in page %} show {% endif %}" id="DropOff">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'operations-dropoff-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-dropoff-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New DropOff </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'operations-dropoff-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-dropoff-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View DropOffs </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#CheckIn">
-                  <span class="sidenav-mini-icon"> C </span>
-                  <span class="sidenav-normal"> CheckIn <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'operations-checkin-' in page %} show {% endif %}" id="CheckIn">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'operations-checkin-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-checkin-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New CheckIn </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'operations-checkin-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-checkin-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View CheckIns </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#CheckOut">
-                  <span class="sidenav-mini-icon"> C </span>
-                  <span class="sidenav-normal"> CheckOut <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'operations-checkout-' in page %} show {% endif %}" id="CheckOut">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'operations-checkout-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-checkout-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New CheckOut </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'operations-checkout-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/operations-checkout-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View CheckOuts </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#ManagementPages" 
-
-            class="nav-link {% if menu == 'management' %} active {% endif %}" 
-            aria-expanded="{% if menu == 'management' %} true {% else %} false {% endif %}"
-
-            aria-controls="ManagementPages" role="button">
-            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-              <svg width="12px" height="12px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <title>settings</title>
-                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                  <g transform="translate(-2020.000000, -442.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                    <g transform="translate(1716.000000, 291.000000)">
-                      <g transform="translate(304.000000, 151.000000)">
-                        <polygon class="color-background" opacity="0.596981957" points="18.0883333 15.7316667 11.1783333 8.82166667 13.3333333 6.66666667 6.66666667 0 0 6.66666667 6.66666667 13.3333333 8.82166667 11.1783333 15.315 17.6716667"></polygon>
-                        <path class="color-background" d="M31.5666667,23.2333333 C31.0516667,23.2933333 30.53,23.3333333 30,23.3333333 C29.4916667,23.3333333 28.9866667,23.3033333 28.48,23.245 L22.4116667,30.7433333 L29.9416667,38.2733333 C32.2433333,40.575 35.9733333,40.575 38.275,38.2733333 L38.275,38.2733333 C40.5766667,35.9716667 40.5766667,32.2416667 38.275,29.94 L31.5666667,23.2333333 Z" opacity="0.596981957"></path>
-                        <path class="color-background" d="M33.785,11.285 L28.715,6.215 L34.0616667,0.868333333 C32.82,0.315 31.4483333,0 30,0 C24.4766667,0 20,4.47666667 20,10 C20,10.99 20.1483333,11.9433333 20.4166667,12.8466667 L2.435,27.3966667 C0.95,28.7083333 0.0633333333,30.595 0.00333333333,32.5733333 C-0.0583333333,34.5533333 0.71,36.4916667 2.11,37.89 C3.47,39.2516667 5.27833333,40 7.20166667,40 C9.26666667,40 11.2366667,39.1133333 12.6033333,37.565 L27.1533333,19.5833333 C28.0566667,19.8516667 29.01,20 30,20 C35.5233333,20 40,15.5233333 40,10 C40,8.55166667 39.685,7.18 39.1316667,5.93666667 L33.785,11.285 Z"></path>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </svg>
-            </div>
-            <span class="nav-link-text ms-1">Management</span>
-          </a>
-          <div class="collapse {% if menu == 'management' %} show {% endif %}" id="ManagementPages">
-            <ul class="nav ms-4 ps-3">
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Employee">
-                  <span class="sidenav-mini-icon"> E </span>
-                  <span class="sidenav-normal"> Employees <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'management-employee-' in page %} show {% endif %}" id="Employee">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'management-employee-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-employee-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Employee </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'management-employee-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-employee-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Employees </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Consignors">
-                  <span class="sidenav-mini-icon"> C </span>
-                  <span class="sidenav-normal"> Consignors <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'management-consignor-' in page %} show {% endif %}" id="Consignors">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'management-consignor-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-consignor-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Consignor </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'management-consignor-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-consignor-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Consignors </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Liquidators">
-                  <span class="sidenav-mini-icon"> L </span>
-                  <span class="sidenav-normal"> Liquidators <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'management-liquidator-' in page %} show {% endif %}" id="Liquidators">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'management-liquidator-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-liquidator-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Liquidator </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'management-liquidator-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-liquidator-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Liquidators </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Schedule">
-                  <span class="sidenav-mini-icon"> S </span>
-                  <span class="sidenav-normal"> Schedule <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'management-schedule-' in page %} show {% endif %}" id="Schedule">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'management-schedule-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-schedule-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Schedule </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'management-schedule-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-schedule-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Schedules </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Vacation">
-                  <span class="sidenav-mini-icon"> V </span>
-                  <span class="sidenav-normal"> Vacation <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'management-vacation-' in page %} show {% endif %}" id="Vacation">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'management-vacation-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-vacation-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Vacation </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'management-vacation-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-vacation-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Vacation </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Drawer">
-                  <span class="sidenav-mini-icon"> D </span>
-                  <span class="sidenav-normal"> Drawer <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'management-drawer-' in page %} show {% endif %}" id="Drawer">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'management-drawer-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-drawer-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Drawer </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'management-drawer-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/management-drawer-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Drawers </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <!-- Database Pages -->
-        <!-- Stores, Departments, Sections -->
-        <li class="nav-item">
-          <a data-bs-toggle="collapse" href="#DatabasePages" 
-
-            class="nav-link {% if menu == 'database' %} active {% endif %}" 
-            aria-expanded="{% if menu == 'database' %} true {% else %} false {% endif %}"
-
-            aria-controls="DatabasePages" role="button">
-            <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center d-flex align-items-center justify-content-center  me-2">
-              <svg width="12px" height="12px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                <title>settings</title>
-                <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                  <g transform="translate(-2020.000000, -442.000000)" fill="#FFFFFF" fill-rule="nonzero">
-                    <g transform="translate(1716.000000, 291.000000)">
-                      <g transform="translate(304.000000, 151.000000)">
-                        <polygon class="color-background" opacity="0.596981957" points="18.0883333 15.7316667 11.1783333 8.82166667 13.3333333 6.66666667 6.66666667 0 0 6.66666667 6.66666667 13.3333333 8.82166667 11.1783333 15.315 17.6716667"></polygon>
-                        <path class="color-background" d="M31.5666667,23.2333333 C31.0516667,23.2933333 30.53,23.3333333 30,23.3333333 C29.4916667,23.3333333 28.9866667,23.3033333 28.48,23.245 L22.4116667,30.7433333 L29.9416667,38.2733333 C32.2433333,40.575 35.9733333,40.575 38.275,38.2733333 L38.275,38.2733333 C40.5766667,35.9716667 40.5766667,32.2416667 38.275,29.94 L31.5666667,23.2333333 Z" opacity="0.596981957"></path>
-                        <path class="color-background" d="M33.785,11.285 L28.715,6.215 L34.0616667,0.868333333 C32.82,0.315 31.4483333,0 30,0 C24.4766667,0 20,4.47666667 20,10 C20,10.99 20.1483333,11.9433333 20.4166667,12.8466667 L2.435,27.3966667 C0.95,28.7083333 0.0633333333,30.595 0.00333333333,32.5733333 C-0.0583333333,34.5533333 0.71,36.4916667 2.11,37.89 C3.47,39.2516667 5.27833333,40 7.20166667,40 C9.26666667,40 11.2366667,39.1133333 12.6033333,37.565 L27.1533333,19.5833333 C28.0566667,19.8516667 29.01,20 30,20 C35.5233333,20 40,15.5233333 40,10 C40,8.55166667 39.685,7.18 39.1316667,5.93666667 L33.785,11.285 Z"></path>
-                      </g>
-                    </g>
-                  </g>
-                </g>
-              </svg>
-            </div>
-            <span class="nav-link-text ms-1">Database</span>
-          </a>
-          <div class="collapse {% if menu == 'database' %} show {% endif %}" id="DatabasePages">
-            <ul class="nav ms-4 ps-3">
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Store">
-                  <span class="sidenav-mini-icon"> S </span>
-                  <span class="sidenav-normal"> Stores <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'database-store-' in page %} show {% endif %}" id="Store">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'database-store-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/database-store-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Store </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'database-store-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/database-store-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Stores </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Department">
-                  <span class="sidenav-mini-icon"> D </span>
-                  <span class="sidenav-normal"> Departments <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'database-department-' in page %} show {% endif %}" id="Department">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'database-department-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/database-department-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Department </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'database-department-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/database-department-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Departments </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Position">
-                  <span class="sidenav-mini-icon"> P </span>
-                  <span class="sidenav-normal"> Positions <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'database-position-' in page %} show {% endif %}" id="Position">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'database-position-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/database-position-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Position </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'database-position-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/database-position-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Position </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-              <li class="nav-item ">
-                <a class="nav-link " data-bs-toggle="collapse" aria-expanded="false" href="#Section">
-                  <span class="sidenav-mini-icon"> S </span>
-                  <span class="sidenav-normal"> Section <b class="caret"></b></span>
-                </a>
-                <div class="collapse {% if 'database-section-' in page %} show {% endif %}" id="Section">
-                  <ul class="nav nav-sm flex-column">
-                    <li class="nav-item {% if page == 'database-section-new.html' %} active {% endif %}">
-                      <a class="nav-link " href="/database-section-new.html">
-                        <span class="sidenav-mini-icon text-xs"> N </span>
-                        <span class="sidenav-normal"> New Section </span>
-                      </a>
-                    </li>
-                    <li class="nav-item {% if page == 'database-section-view.html' %} active {% endif %}">
-                      <a class="nav-link " href="/database-section-view.html">
-                        <span class="sidenav-mini-icon text-xs"> V </span>
-                        <span class="sidenav-normal"> View Sections </span>
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </li>
-      </ul>
-    </div>
-    
-  </aside>
+      {% endfor %}
+    </ul>
+  </div>    
+</aside>
   

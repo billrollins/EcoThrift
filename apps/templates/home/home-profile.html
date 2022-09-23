@@ -7,83 +7,76 @@
 {% block body_class %} g-sidenav-show bg-gray-100 {% endblock %}
 
 {% block content %}
-  <div class="container-fluid py-4">
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <h3 class="mt-5 text-center">Build Your Profile</h3>
+      <h5 class="text-secondary font-weight-normal text-center">This information will let us know more about you.</h5>
+    </div>
+  </div>
+
+  <!-- Card Card-Body-->
+  <div class="card card-body">
+    
+    <!-- Tab Pills -->
+    <div class="nav-wrapper position-relative end-0">
+      <ul class="nav nav-pills nav-fill p-1" role="tablist">
+        {% for nm, form in forms %}
+        <li class="nav-item">
+          <a class="nav-link {% if forloop.first %}active{% endif %}" data-bs-toggle="pill" href="#{{ nm }}" >
+            {{ form.model.model_name }} Profile
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+
     <div class="row">
       <div class="col-12">
-        <h3 class="mt-5 text-center">Build Your Profile</h3>
-        <h5 class="text-secondary font-weight-normal text-center">This information will let us know more about you.</h5>
-        <div class="multisteps-form mb-5">
 
-          <!--progress bar-->
-          <div class="row">
-            <div class="col-12 col-lg-10 mx-auto my-5">
-              <div class="multisteps-form__progress">
-                <button class="multisteps-form__progress-btn js-active" type="button" title="User Profile">
-                  <span>User Profile</span>
-                </button>
-                <button class="multisteps-form__progress-btn " type="button" title="Shopper Profile">
-                  <span>Shopper Profile</span>
-                </button>
-                <button class="multisteps-form__progress-btn " type="button" title="Consignor Profile">
-                  <span>Consignor Profile</span>
-                </button>
-                <button class="multisteps-form__progress-btn " type="button" title="Employee Profile">
-                  <span>Employee Profile</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!--form panels-->
-          <div class="row">
-            <div class="col-12 col-lg-10 m-auto">
-              <form class="multisteps-form__form" method="POST" enctype="multipart/form-data">
+        <!-- Tab Forms -->        
+        <div class="tab-content">
+          {% for nm, form in forms %}
+            <div class = "tab-pane fade {% if forloop.first %}active show{% endif %}" id = "{{ nm }}">
+              <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% for form in forms %}
-
-                  <!-- Single form panel-->
-                  <div class="card multisteps-form__panel p-3 border-radius-xl bg-white {% if forloop.first %} js-active {% endif%}" data-animation="FadeIn">
-                      
-                      <!-- Panel Heading --> 
-                      <div class="row text-center">
-                        <div class="col-10 mx-auto">
-                          <h5 class="font-weight-normal">{{ form.instance.form_name }}</h5>
-                        </div>
+                {% for formrow in form.form_struct %}
+                  <div class="row mt-3">
+                    {% if formrow.0.0 is not None %}
+                      <h7 class="font-weight-bolder mt-3">{{ formrow.0.0 }}</h7>
+                    {% endif %}
+                    {% for section, field, label, colsize in formrow %}
+                      <div class="col-{{ colsize }}">
+                        <label>{{ label }}</label>
+                        {{ form|dict_get:field }}
                       </div>
-
-                      <!-- Panel Content --> 
-                      <div class="multisteps-form__content" data-animation="FadeIn">
-                        {% for formrow in form.form_struct %}
-                          <div class="row mt-3">
-                            {% if formrow.0.0 is not None %}
-                              <h7 class="font-weight-bolder mt-3">{{ formrow.0.0 }}</h7>
-                            {% endif %}
-                            {% for section, field, label, colsize in formrow %}
-                              <div class="col-{{ colsize }}">
-                                <label>{{ label }}</label>
-                                {{ form|dict_get:field }}
-                              </div>
-                            {% endfor %}
-                          </div>
-                        {% endfor %}
-                        <div class="button-row d-flex mt-4">
-                          <button class="btn bg-gradient-dark ms-auto mb-0" type="submit" title="Update">Update</button>
-                        </div>
-                      </div>
-                  </div>          
+                    {% endfor %}
+                  </div>
                 {% endfor %}
+                
+                <div class="button-row d-flex mt-4">
+                  <button class="btn bg-gradient-dark ms-auto mb-0" type="submit" name="button" value="{{ nm }}">
+                    Update {{ form.model.model_name }}
+                  </button>
+                </div>
               </form>
-            </div>            
-          </div>
+            </div>
+          {% endfor %}
         </div>
+          
+
+        </form>
+
       </div>
-    </div>      
+    </div>
+
   </div>
+
+</div>
 {% endblock content %}
 
-<!-- Specific JS goes HERE --> 
-{% block javascripts %} 
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
 
-  <script src="/static/assets/js/plugins/multistep-form.js"></script>
 
 {% endblock javascripts %}

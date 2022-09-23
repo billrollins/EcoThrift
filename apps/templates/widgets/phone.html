@@ -1,0 +1,2 @@
+{% load custom_tags %}
+<input type="tel" name="{{ widget.name }}"{% if widget.value %} value="{{ widget.value }}"{% endif %} {% include "django/forms/widgets/attrs.html" %}>

@@ -1,0 +1,88 @@
+{% extends 'layouts/base.html' %}
+
+{% load custom_tags %}
+
+{% block title %} Processing Manifest {% endblock title %}
+
+{% block body_class %} g-sidenav-show bg-gray-100 {% endblock %}
+
+
+
+{% block content %}
+  <div class="container-fluid py-4">
+
+    <div class="d-sm-flex justify-content-between">
+      <div>
+        {% block newbutton %}
+        <a href="{{ new_href }}" class="btn btn-icon bg-gradient-primary">New {{ model.model_name }}</a>
+        {% endblock newbutton %}
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table table-flush" id="datatable-search">
+              <thead class="thead-light">
+                {% block thead %}
+                  <tr>
+                    {% for h in model.view_headings %}
+                      <th>{{ h }}</th>
+                    {% endfor %}
+                  </tr>
+                {% endblock thead %}
+              </thead>
+              <tbody>
+                {% block trows %}
+                  {% for i in items %}
+                    <tr>
+                      {% for f in model.view_fields %}
+                          <td class="text-xs font-weight-bold">
+                            {% if f.1 %}
+                              <a href="{{ f.1 }}{{ i|dict_get:f.0 }}">
+                                #<span class="my-2 text-xs">{{ i|dict_get:f.0 }}</span>
+                              </a>
+                            {% else %}
+                              <span class="my-2 text-xs">{{ i|dict_get:f.0 }}</span>
+                            {% endif %}
+                          </td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}                  
+                {% endblock trows %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>      
+  </div>
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %} 
+  <script src="/static/assets/js/plugins/datatables.js"></script>
+  <script>
+    const dataTableSearch = new simpleDatatables.DataTable("#datatable-search", {
+      searchable: true,
+      fixedHeight: false,
+      perPageSelect: false
+    });
+    document.querySelectorAll(".export").forEach(function(el) {
+      el.addEventListener("click", function(e) {
+        var type = el.dataset.type;
+
+        var data = {
+          type: type,
+          filename: "soft-ui-" + type,
+        };
+
+        if (type === "csv") {
+          data.columnDelimiter = "|";
+        }
+
+        dataTableSearch.export(data);
+      });
+    });
+  </script>
+{% endblock javascripts %}

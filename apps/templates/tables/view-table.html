@@ -1,0 +1,39 @@
+{% load custom_tags %}
+
+<div class="table-responsive">
+    <table class="table align-items-center mb-0" id="datatable-search">
+        <thead>
+            <tr>
+            {% for f in Fields %}
+                <th class="{{ f.Head_Case }} {{ f.Head_Just }} text-secondary text-xxs font-weight-bolder opacity-7 nopad">{{ f.Head }}</th>
+            {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in Data %}
+                <tr>                    
+                    {% for field in Fields %}
+                        <td>
+                            {{ field|view_fields:object }}
+                        </td>
+                    {% endfor %}
+                    
+                    {% if Edit %}
+                        <td>
+                            <a href="{{ Edit|filter_format:object }}"><i class = "fa fa-pen text-info"></i></a>
+                        </td>
+                    {% endif %}
+
+                    {% if Delete %}
+                        <td>
+                            <a onclick="submit_delete('{{ object|delete_str }}')">
+                            <i class = "fa fa-trash text-danger" ></i>
+                            </a>
+                        </td>
+                    {% endif %}
+                    
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

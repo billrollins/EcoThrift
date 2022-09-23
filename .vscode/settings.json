@@ -1,3 +1,4 @@
 {
-    "editor.foldingMaximumRegions": 50000
+    "editor.foldingMaximumRegions": 50000,
+    "notebook.output.textLineLimit": 1000
 }

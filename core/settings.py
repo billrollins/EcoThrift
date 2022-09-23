@@ -5,6 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from datetime import timedelta
 import os
+import django
 from decouple import config
 from unipath import Path
 from google.oauth2 import service_account
@@ -31,8 +32,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.forms',
     'apps.home',
-    'phone_field',
+    "phonenumber_field",
 ]
 
 MIDDLEWARE = [
@@ -49,12 +51,14 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'core.urls'
 LOGIN_REDIRECT_URL = "home"  # Route defined in home/urls.py
 LOGOUT_REDIRECT_URL = "home"  # Route defined in home/urls.py
-TEMPLATE_DIR = os.path.join(BASE_DIR, "apps/templates")  # ROOT dir for templates
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'apps', 'templates')  # ROOT dir for templates
+BASE_TEMPLATE_DIR = os.path.join(django.__path__[0], 'forms','templates')  # built-in templates directory 
+FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATE_DIR],
+        'DIRS': [BASE_TEMPLATE_DIR, TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -78,10 +82,10 @@ DATABASES = {
     'default': {
 
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'd81s54n3hpm6ka',
-        'USER': 'xnqlbmsubcpyaq',
-        'PASSWORD': 'a5240b57619bc9078d1937c1073a16746f8b7a7cffbfd7fc5e9983eeb8c73400',
-        'HOST': 'ec2-3-224-184-9.compute-1.amazonaws.com',
+        'NAME': 'dcf7okf2mf6704',
+        'USER': 'fumswahptkjneg',
+        'PASSWORD': '462986a968be383e8295ac70ebf52dea0cf5166f776f84ab6620db1471f4d8e3',
+        'HOST': 'ec2-35-170-21-76.compute-1.amazonaws.com',
         'PORT': '5432',
     }
 }

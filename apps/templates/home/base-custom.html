@@ -1,0 +1,60 @@
+{% extends 'layouts/base.html' %}
+{% load custom_tags %}
+
+<!-- Custom Title --> 
+{% block title %}
+{{ Title }}
+{% endblock title %}
+
+<!-- Custom Body Class --> 
+{% block body_class %}
+{{ BodyClass }}
+{% endblock %}
+
+<!-- Custom Content --> 
+{% block content %}
+<div class="container py-4">
+<div class="card card-body">
+<div class="row">
+<div class="col-12">
+    {% for e in Elements %}
+        {{ e|write_element:request }}
+    {% endfor %}
+</div>
+</div>
+</div>
+</div>
+{% endblock content %}
+
+<!-- Custom JS -->
+{% block javascripts %}
+
+{% for e in Elements %}
+<script>
+    {{ e.JavaScript }}
+</script>
+{% endfor %}
+
+{% csrf_token %}
+
+<script type="text/javascript">
+
+function submit_delete(del_str) {
+    $.ajax({
+        type: 'POST',
+        url: '/Delete',
+        data: {            
+            'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+            'del_str': del_str
+        },
+        success: function (data) {
+            location.reload();
+        }
+    });
+}
+</script>
+{% endblock javascripts %}
+
+
+
+

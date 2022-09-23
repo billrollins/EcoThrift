@@ -1,17 +1,3 @@
-<!--
- =========================================================
-* Soft UI Dashboard PRO - v1.0.5
-=========================================================
-
-* Product Page:  https://www.creative-tim.com/product/soft-ui-dashboard-pro 
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -37,18 +23,28 @@
   <link id="pagestyle" href="/static/assets/css/soft-ui-dashboard.css?v=1.0.5" rel="stylesheet" />
 
   <!-- Specific CSS goes HERE -->
+  {% block stylesheets %}
+  {% endblock stylesheets %}  
   <style> 
     .dataTable-sorter::before,
     .dataTable-sorter::after {
       border-left: none;
       border-right: none;
     }
+    .table thead th {
+      padding: .5rem;
+    }
   </style>
-  {% block stylesheets %}
 
-  {% endblock stylesheets %}
+  {% block showmodals %}
 
-</head> 
+  {% endblock showmodals %}
+
+</head>
+
+<!--  Including my custom filters -->
+{% load custom_tags %}
+
 <body class="{% block body_class %}{% endblock %}">
 
   {% include "includes/sidebar.html" %}
@@ -59,13 +55,18 @@
 
     {% block content %}{% endblock content %}
 
+    <!--  Making notifications if there are any -->
+    {{ notifications | ntf_make }}
+
   </main>
 
   
-  {% include "includes/scripts.html" %}  
+  {% include "includes/scripts.html" %}
 
-  <!-- Specific JS goes HERE --> 
-  {% block javascripts %}{% endblock javascripts %}
+  <!-- Java Scripts -->
+
+    <!-- jquery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 
   <script>
     var win = navigator.platform.indexOf('Win') > -1;
@@ -83,5 +84,10 @@
   <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="/static/assets/js/soft-ui-dashboard.min.js?v=1.0.5"></script>
 
+  {% block javascripts %}{% endblock javascripts %}
+
+
+  {{ notifications | ntf_show }}
+  
 </body>
 </html>

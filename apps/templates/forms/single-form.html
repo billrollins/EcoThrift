@@ -1,0 +1,43 @@
+{% load custom_tags %}
+
+<!-- Form & Token -->
+{% for meta in meta_forms %}
+<form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Form Head -->
+    <h5 class="font-weight-bolder mb-0">{{ meta.Header }}</h5>
+    {% if form.SubHeader %}
+       <p class="mb-0 text-sm">{{ meta.SubHeader }}</p>
+    {% endif %}
+
+    <!-- Form Content -->
+    {% for row in meta.thisForm.field_struct %}
+    <div class="row mt-3">
+        {% for f in row %}
+            {% if f.Heading %}
+                <h7 class="font-weight-bolder mt-3">{{ f.Heading }}</h7>
+            {% endif %}
+                <div class="col-{{ f.Size }}">
+                    <label>{{ f.Label }}</label>
+                    {{ meta.thisForm|dict_get:f.Name }}
+                </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <!-- hidden variables -->
+    <input type="hidden" name="Form_Name" value="{{ meta.Form }}">
+    <input type="hidden" name="PK" value="{{ meta.pk }}">
+    <input type="hidden" name="Redirect_Valid" value="{{ meta.Redirect_Valid }}">
+    <input type="hidden" name="Redirect_Invalid" value="{{ meta.Redirect_Invalid }}">
+
+    <!-- Submit Button -->
+    <div class="button-row d-flex mt-4">
+        <button class="btn bg-gradient-dark ms-auto mb-0" type="submit">
+            {{ meta.Button }}
+        </button>
+    </div>
+
+</form>
+{% endfor %}
