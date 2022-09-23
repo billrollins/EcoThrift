@@ -1,7 +1,7 @@
 {% load custom_tags %}
 
 <div class="table-responsive">
-    <table class="table align-items-center mb-0" id="datatable-search">
+    <table class="table align-items-center" id="datatable-search">
         <thead>
             <tr>
             {% for f in Fields %}
@@ -26,8 +26,11 @@
 
                     {% if Delete %}
                         <td>
-                            <a onclick="submit_delete('{{ object|delete_str }}')">
-                            <i class = "fa fa-trash text-danger" ></i>
+                            <a  id="{{ object|delete_str }}" 
+                                title="Click to Delete" 
+                                href="#" 
+                                onclick="submit_delete('{{ object|delete_str }}');return false;">
+                                <i class = "fa fa-trash text-danger" ></i>
                             </a>
                         </td>
                     {% endif %}
