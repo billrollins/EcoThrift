@@ -1,23 +1,16 @@
-from django import forms
+from django import forms, template
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.forms import ModelForm
 from django.db import models
 from django.db.models import Model
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.http import HttpResponse, HttpRequest, JsonResponse
+from django.forms import ModelForm
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
-
-from django import template
 from django.template import loader
-
 from django.utils.deconstruct import deconstructible
 from django.utils.safestring import mark_safe
-
-from asyncio.proactor_events import _ProactorBaseWritePipeTransport
-from dataclasses import field
-from unittest.mock import NonCallableMagicMock
 
 import os
 import pandas as pd
@@ -40,6 +33,21 @@ STATIC_DIR = os.path.join(APPS_DIR, 'static')
 DATA_DIR = os.path.join(STATIC_DIR, 'assets', 'data')
 
 ##################################################################################################################
+# Eco-Thrift Colors
+##################################################################################################################
+
+ET_COLORS = {
+    'ET_GreenLight':    "#8ac33f",
+    'ET_GreenDark':     "#53863f",
+    'ET_Green':         "#70a63f",
+    'ET_Yellow':        "#eec93a",
+    'ET_YellowLight':   "#f5e597",
+    'ET_YellowDark':    "#d29401",
+    'ET_White':         "#f6f6f6",
+    'ET_Black':         "#000405",
+}
+
+##################################################################################################################
 # Constants
 ##################################################################################################################
 
@@ -59,12 +67,34 @@ def GET_KV_ARGS(s):
                 kv = _kv.split('=')
                 args[kv[0]] = kv[1]
     return args
+    
 def GET_KEYS(dct, keys):
     return dict((k, dct[k]) for k in keys if k in dct)
 
 ##################################################################################################################
 # String Functions
 ##################################################################################################################
+
+SLUGS = {
+    '&' : '-AMS', '*' : '-ASR', "'" : '-APT', '@' : '-CCA',
+    '%' : '-PCS', '^' : '-CFA', '+' : '-PLS', ':' : '-CLN',
+    '"' : '-QTM', '?' : '-QSM', ',' : '-CMA', '`' : '-GAC',
+    '~' : '-TLD', '!' : '-EXM', '#' : '-NBS', '$' : '-DLS',
+    '(' : '-LPT', ')' : '-RPT', '_' : '-LOL', '-' : '-HPM',
+    '=' : '-EQS', '{' : '-LCB', '}' : '-RCB', '|' : '-VTL',
+    '[' : '-LSB', ']' : '-RSB', '\\' : '-RSD', ';' : '-SCN',
+    '<' : '-LTS', '>' : '-GTS', '.' : '-FST', '/' : '-SLD'
+}
+
+def SLUGIFY(_str):
+    for _char, _slug in SLUGS.items():
+        _str = _str.replace(_char, _slug)
+    return _str
+
+def DESLUG(_str):
+    for _char, _slug in SLUGS.items():
+        _str = _str.replace(_slug, _char)
+    return _str
 
 def STR_FULL_NM(m):
     return f'{m.last_name}, {m.first_name}'
@@ -75,11 +105,60 @@ def STR_LOC_1(m):
 def STR_LOC_2(m):
     return f'{m.state} {m.city}'
 
+    
+##################################################################################################################
+# Process Key Values
+##################################################################################################################
+
+
+TYPES = ['Form','Table']
+def TYPE(str):
+    for t in TYPES:
+        if f'{t};' in f'{str};':
+            return t
+    return None
+
+def DCT_FROM_GET(_get):
+    dct = {}
+    for kv in _get.split(f'?')[-1].split(';'):
+        kv = kv.split('=')
+        if len(kv)==2:
+            k = DESLUG(kv[0])
+            v = [ DESLUG(_v) for _v in kv[1].split(',') ]
+            if len(v) == 1: 
+                v = v[0]
+            dct[k] =  v
+    return dct
+
 def DOUBLE_FORMAT(str, dict1, dict2):
     str = str.format(**dict1)
     str = re.sub('<<', '{', str)
     str = re.sub('>>', '}', str)
     return str.format(**dict2)
+
+def GET_DCT_FROM_STR(prep_str):
+    dct = {}
+    for kv in prep_str.split('@@;'):
+        kv = kv.split('@@=')
+        print(kv)
+        if len(kv)==2:
+            dct[kv[0]] = kv[1].split('@@,') if '@@,' in kv[1] else kv[1]
+    return None
+
+def MAKE_DICT(obj):
+    _dict = obj
+    if type(_dict) != dict:
+        try:            
+            _dict = _dict.__dict__
+        except:
+            _dict = dict(obj)
+    return _dict
+
+def FORMAT(str, obj):
+    format_dict = MAKE_DICT(obj)
+    format_str = str.format(**format_dict)
+    return format_str
+
 
 ##################################################################################################################
 # Notifications
@@ -111,67 +190,53 @@ def add_notification(icon='', heading='', body='', id=None):
     notifications.append(newNotification)
     return
 
-
-def load_notifications():
+def LOAD_NOTIFICATIONS():
     global notifications
     notifs = notifications
     notifications = []
     return notifs
 
 ##################################################################################################################
-# Site Design - File Names
-##################################################################################################################
-
-SD_MODELS_FN = os.path.join(DATA_DIR, 'models.pkl')
-SD_MODEL_FIELDS_FN = os.path.join(DATA_DIR, 'model_fields.pkl')
-
-SD_META_FORMS_FN = os.path.join(DATA_DIR, 'meta_forms.pkl')
-SD_FORMS_FN = os.path.join(DATA_DIR, 'forms.pkl')
-SD_FORM_FIELDS_FN = os.path.join(DATA_DIR, 'form_fields.pkl')
-
-SD_TABLES_FN = os.path.join(DATA_DIR, 'tables.pkl')
-SD_TABLE_FIELDS_FN = os.path.join(DATA_DIR, 'table_fields.pkl')
-
-SD_PAGES_FN = os.path.join(DATA_DIR, 'pages.pkl')
-SD_PAGE_ELEMENTS_FN = os.path.join(DATA_DIR, 'page_elements.pkl')
-
-##################################################################################################################
 # Site Design - Models, Forms, Pages
 ##################################################################################################################
 
-def _get_details(nm, _det, i, fn, det_fn):
-    res = {}
-    det_df = pd.read_pickle(det_fn)
-    for _, x in pd.read_pickle(fn).iterrows():
-        _x = x[i]
-        res[_x] = dict(x)
-        res[_x][_det] = [dict(det) for _, det in det_df[det_df[nm] == x[i]].iterrows()]
-    return res
+def _get_site_design(_design_list):
+    site_design = {}
+    for design in _design_list:
+        design_df = pd.read_pickle(os.path.join(DATA_DIR, f'{design[0]}.pkl'))
+        design_nm = ''.join([d.capitalize() for d in design[0].split('_')])
+        design_dct = {}
 
-def GET_FORM_FIELDS(form_design):
-    fields = form_design['Fields']
-    field_attrs = []
-    field_struct, field_row, row_idx, col_idx = [], [], 0, 0
-    struct_keys = ['Name', 'Heading', 'Label', 'Size']
-    attr_keys = ['Class','Type']
-    for f in fields:
-      attrs = GET_KEYS(f, attr_keys)
-      if f['Attrs']:
-        attrs.update(**GET_KV_ARGS(f['Attrs']))
-      field_attrs += [(f['Name'], attrs, f['Template'])]
-      if f['Row'] > row_idx:
-        field_struct += [field_row]
-        row_idx = f['Row']
-        field_row = []
-      field_row += [GET_KEYS(f, struct_keys)]
-    field_struct += [field_row]
-    return field_struct, field_attrs
+        if len(design) == 1:
+            design_dct = [dict(r) for _, r in design_df.iterrows()]
+        else:
+            detail_nm = design[1].split('_')[1].capitalize() + "s"
+            detail_df = pd.read_pickle(os.path.join(DATA_DIR, f'{design[1]}.pkl'))
+            design_dct = design_df.set_index(design_nm, drop=True).T.to_dict()
+            for k in design_dct:
+                thisDetail = (
+                    detail_df[detail_df[design_nm]==k]
+                    .drop(design_nm, axis=1)
+                )
+                design_dct[k][detail_nm] = [dict(r) for _, r in thisDetail.iterrows()]
 
-PAGE_DESIGN = _get_details('Page', 'Elements', 'URL', SD_PAGES_FN, SD_PAGE_ELEMENTS_FN)
-MODEL_DESIGN = _get_details('Model', 'Fields', 'Name', SD_MODELS_FN, SD_MODEL_FIELDS_FN)
-FORM_DESIGN = _get_details('Form', 'Fields', 'Name', SD_FORMS_FN, SD_FORM_FIELDS_FN)
-TABLE_DESIGN = _get_details('Table', 'Fields', 'Name', SD_TABLES_FN, SD_TABLE_FIELDS_FN)
-META_FORMS = pd.read_pickle(SD_META_FORMS_FN)
+        site_design[design_nm] = design_dct
+    return site_design
+
+SITE_DESIGN = _get_site_design([
+    ['sidebar'],
+    ['page','page_element'],
+    ['meta_form'],
+    ['form','form_field'],
+    ['model','model_field'],
+    ['table','table_field']
+])
+    
+PAGE_DESIGN = SITE_DESIGN['Page']
+MODEL_DESIGN = SITE_DESIGN['Model']
+FORM_DESIGN = SITE_DESIGN['Form']
+TABLE_DESIGN = SITE_DESIGN['Table']
+SIDEBAR = SITE_DESIGN['Sidebar']
 
 ##################################################################################################################
 # Prices
@@ -292,7 +357,6 @@ STATE_LIST = [('Alabama','Alabama'),('Alaska','Alaska'),('Arizona','Arizona'),('
 # Giving files random names
 @deconstructible
 class PathAndRename(object):
-
     def __init__(self, sub_path):
         self.path = sub_path
 
@@ -314,62 +378,3 @@ ORD_MAN = PathAndRename("order-manifest")
 ORD_POD = PathAndRename("order-pod")
 DRP_AGR = PathAndRename("dropoff-agreement")
 ITM_IMG = PathAndRename("item-image")
-
-##################################################################################################################
-# Functions for field_design
-##################################################################################################################
-
-FD_COLS = ['Model', 'Field', 'FormRow', 'FormCol', 'FormSection', 'FormLabel', 'FormType', 'FormColumnsSize', 'ViewHeading', 'ViewType', 'ViewArgs', 'ViewHref']
-FD_MDL, FD_FLD, FD_ROW, FD_COL, FD_SCT, FD_LBL, FD_TYP, FD_FCS, FD_VHD, FD_VTP, FD_VAR, FD_VHR = FD_COLS
-
-
-FD_POS = [FD_ROW, FD_COL]
-FD_FSV = [FD_SCT, FD_FLD, FD_LBL, FD_FCS]
-
-
-FD_POS = [FD_ROW, FD_COL]
-FD_FSV = [FD_SCT, FD_FLD, FD_LBL, FD_FCS]
-
-def GET_FD(model):
-    df = (
-        pd.read_pickle(FIELD_DESIGN_FN)
-        .query(f'{FD_MDL} == "{model}"')
-        .loc[:, FD_FLD:]
-    )
-    fields = df[FD_FLD].values
-    view_headings = df.query(f'{FD_VHD} != ""')[FD_VHD].values
-    view_fields = df.query(f'{FD_VHD} != ""')[[FD_VTP, FD_VAR, FD_VHR]].values
-
-    df = (
-        df.query(f'{FD_ROW} >= 0')
-        .sort_values(FD_POS)
-        .reset_index(drop=True)
-    )
-    if df.shape[0] == 0:
-        form_fields, form_type, form_struct = [],[],[]
-    else:
-        form_fields = df[FD_FLD].values.tolist()
-        form_type = df.query(f'{FD_TYP} != ""')[[FD_FLD, FD_TYP]].values
-        idxs = df.query(f'{FD_COL} == 0').index
-        form_struct = [df[a:b][FD_FSV].values.tolist() for a, b in zip(idxs[:-1], idxs[1:])] + [df[idxs[-1]:][FD_FSV].values.tolist()]
-
-    return fields, form_fields, form_type, form_struct, view_headings, view_fields
-
-##################################################################################################################
-# Convenience functions for views.py
-##################################################################################################################
-
-def _tmpl(s):
-    return loader.get_template(f'home/{s}.html')
-
-def _http(t=None, s=None, c=None, r=None):
-    t = _tmpl(s) if t is None else t
-    if c is None:
-        return HttpResponse(t.render())
-    return HttpResponse(t.render(c, r))
-
-##################################################################################################################
-# Sidebar List
-##################################################################################################################
-
-SIDEBAR = [({'Menu': 'Home', 'MenuId': 'HomePages', 'Icon': 'fas fa-couch'}, [({'SubMenu': 'Dashboard', 'SubId': 'HomeDashboardPages', 'Type': '0', 'Text': 'Dashboard', 'Mini': 'D', 'SubMini': 'H'}, [{'Text': 'Dashboard', 'Mini': 'D', 'HREF': 'Dashboard'}]), ({'SubMenu': 'Profile', 'SubId': 'HomeProfilePages', 'Type': '0', 'Text': 'Profile', 'Mini': 'P', 'SubMini': 'H'}, [{'Text': 'Profile', 'Mini': 'P', 'HREF': 'MyProfile'}]), ({'SubMenu': 'TimeClock', 'SubId': 'HomeTimeClockPages', 'Type': '0', 'Text': 'TimeClock', 'Mini': 'T', 'SubMini': 'H'}, [{'Text': 'TimeClock', 'Mini': 'T', 'HREF': ''}]), ({'SubMenu': 'Calendar', 'SubId': 'HomeCalendarPages', 'Type': '0', 'Text': 'Calendar', 'Mini': 'C', 'SubMini': 'H'}, [{'Text': 'Calendar', 'Mini': 'C', 'HREF': ''}]), ({'SubMenu': 'Events', 'SubId': 'HomeEventsPages', 'Type': '1', 'Text': 'New Event', 'Mini': 'N', 'SubMini': 'H'}, [{'Text': 'New Event', 'Mini': 'N', 'HREF': ''}, {'Text': 'View Events', 'Mini': 'V', 'HREF': ''}])]), ({'Menu': 'Operations', 'MenuId': 'OperationsPages', 'Icon': 'fas fa-business-time'}, [({'SubMenu': 'Inventory', 'SubId': 'OperationsInventoryPages', 'Type': '1', 'Text': 'New Inventory', 'Mini': 'N', 'SubMini': 'O'}, [{'Text': 'New Inventory', 'Mini': 'N', 'HREF': ''}, {'Text': 'View Inventory', 'Mini': 'V', 'HREF': ''}]), ({'SubMenu': 'Orders', 'SubId': 'OperationsOrdersPages', 'Type': '1', 'Text': 'New Order', 'Mini': 'N', 'SubMini': 'O'}, [{'Text': 'New Order', 'Mini': 'N', 'HREF': 'AddOrder'}, {'Text': 'View Orders', 'Mini': 'V', 'HREF': 'ViewOrders'}]), ({'SubMenu': 'DropOff', 'SubId': 'OperationsDropOffPages', 'Type': '1', 'Text': 'New DropOff', 'Mini': 'N', 'SubMini': 'O'}, [{'Text': 'New DropOff', 'Mini': 'N', 'HREF': 'AddDropoff'}, {'Text': 'View DropOffs', 'Mini': 'V', 'HREF': 'ViewDropoffs'}]), ({'SubMenu': 'Items', 'SubId': 'OperationsItemsPages', 'Type': '1', 'Text': 'New Item', 'Mini': 'N', 'SubMini': 'O'}, [{'Text': 'New Item', 'Mini': 'N', 'HREF': 'AddItem'}, {'Text': 'View Items', 'Mini': 'V', 'HREF': 'ViewItems'}])]), ({'Menu': 'Management', 'MenuId': 'ManagementPages', 'Icon': 'fas fa-chess'}, [({'SubMenu': 'Employees', 'SubId': 'ManagementEmployeesPages', 'Type': '1', 'Text': 'New Employee', 'Mini': 'N', 'SubMini': 'M'}, [{'Text': 'New Employee', 'Mini': 'N', 'HREF': ''}, {'Text': 'View Employees', 'Mini': 'V', 'HREF': ''}]), ({'SubMenu': 'Consignors', 'SubId': 'ManagementConsignorsPages', 'Type': '1', 'Text': 'New Consignor', 'Mini': 'N', 'SubMini': 'M'}, [{'Text': 'New Consignor', 'Mini': 'N', 'HREF': ''}, {'Text': 'View Consignors', 'Mini': 'V', 'HREF': ''}]), ({'SubMenu': 'Liquidators', 'SubId': 'ManagementLiquidatorsPages', 'Type': '1', 'Text': 'New Liquidator', 'Mini': 'N', 'SubMini': 'M'}, [{'Text': 'New Liquidator', 'Mini': 'N', 'HREF': 'AddLiquidator'}, {'Text': 'View Liquidators', 'Mini': 'V', 'HREF': 'ViewLiquidators'}]), ({'SubMenu': 'Schedule', 'SubId': 'ManagementSchedulePages', 'Type': '1', 'Text': 'New Schedule', 'Mini': 'N', 'SubMini': 'M'}, [{'Text': 'New Schedule', 'Mini': 'N', 'HREF': ''}, {'Text': 'View Schedules', 'Mini': 'V', 'HREF': ''}]), ({'SubMenu': 'Vacation', 'SubId': 'ManagementVacationPages', 'Type': '1', 'Text': 'New Vacation', 'Mini': 'N', 'SubMini': 'M'}, [{'Text': 'New Vacation', 'Mini': 'N', 'HREF': ''}, {'Text': 'View Vacation', 'Mini': 'V', 'HREF': ''}]), ({'SubMenu': 'Drawers', 'SubId': 'ManagementDrawersPages', 'Type': '1', 'Text': 'New Drawer', 'Mini': 'N', 'SubMini': 'M'}, [{'Text': 'New Drawer', 'Mini': 'N', 'HREF': ''}, {'Text': 'View Drawers', 'Mini': 'V', 'HREF': ''}])]), ({'Menu': 'Database', 'MenuId': 'DatabasePages', 'Icon': 'fas fa-database'}, [({'SubMenu': 'Stores', 'SubId': 'DatabaseStoresPages', 'Type': '1', 'Text': 'New Store', 'Mini': 'N', 'SubMini': 'D'}, [{'Text': 'New Store', 'Mini': 'N', 'HREF': 'AddStore'}, {'Text': 'View Stores', 'Mini': 'V', 'HREF': 'ViewStores'}]), ({'SubMenu': 'Departments', 'SubId': 'DatabaseDepartmentsPages', 'Type': '1', 'Text': 'New Department', 'Mini': 'N', 'SubMini': 'D'}, [{'Text': 'New Department', 'Mini': 'N', 'HREF': 'AddDepartment'}, {'Text': 'View Departments', 'Mini': 'V', 'HREF': 'ViewDepartments'}]), ({'SubMenu': 'Positions', 'SubId': 'DatabasePositionsPages', 'Type': '1', 'Text': 'New Position', 'Mini': 'N', 'SubMini': 'D'}, [{'Text': 'New Position', 'Mini': 'N', 'HREF': 'AddPosition'}, {'Text': 'View Positions', 'Mini': 'V', 'HREF': 'ViewPositions'}]), ({'SubMenu': 'Sections', 'SubId': 'DatabaseSectionsPages', 'Type': '1', 'Text': 'New Section', 'Mini': 'N', 'SubMini': 'D'}, [{'Text': 'New Section', 'Mini': 'N', 'HREF': 'AddSection'}, {'Text': 'View Sections', 'Mini': 'V', 'HREF': 'ViewSections'}]), ({'SubMenu': 'Locations', 'SubId': 'DatabaseLocationsPages', 'Type': '1', 'Text': 'New Location', 'Mini': 'N', 'SubMini': 'D'}, [{'Text': 'New Location', 'Mini': 'N', 'HREF': 'AddLocation'}, {'Text': 'View Locations', 'Mini': 'V', 'HREF': 'ViewLocations'}])])]

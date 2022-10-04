@@ -1,58 +1,72 @@
+<!-- Layout --> 
 {% extends 'layouts/base.html' %}
+
+<!-- Tags --> 
 {% load custom_tags %}
 
 <!-- Custom Title --> 
-{% block title %}
-{{ Title }}
-{% endblock title %}
-
-<!-- Custom Body Class --> 
-{% block body_class %}
-{{ BodyClass }}
-{% endblock %}
+{% block title %}{{ PageDesign.Title }}{% endblock title %}
 
 <!-- Custom Content --> 
 {% block content %}
-<div class="container py-4">
-<div class="card card-body">
-<div class="row">
-<div class="col-12">
-    {% for e in Elements %}
-        {{ e|write_element:request }}
-    {% endfor %}
-</div>
-</div>
-</div>
-</div>
+    <div class="container py-4">
+
+    <!-- Page Headings --> 
+    {% if PageDesign.Heading %}
+    <div class="row">
+    <div class="col-12">
+        <h3 class="mt-5 text-center">{{ PageDesign.Heading|_Format:Context }}</h3>
+        {% if PageDesign.SubHeading %}<h5 class="text-secondary text-center">{{ PageDesign.SubHeading|_Format:Context }}</h5> {% endif %}
+    </div>
+    </div>
+    {% endif %}
+
+    <!-- Page Elements --> 
+    <div class="card card-body">
+    <div class="row">
+    <div class="col-12">
+        {% for e in PageDesign.Elements %}
+            {{ e|_Element:Context }}
+        {% endfor %}
+    </div>
+    </div>
+    </div>
+    </div>
 {% endblock content %}
 
-<!-- Custom JS -->
+<!-- Custom JavaScript -->
 {% block javascripts %}
+    
+    <!-- Element JavaScript -->
+    {% for e in Elements %}
+    <script>
+        {{ e.JavaScript }}
+    </script>
+    {% endfor %}
 
-{% for e in Elements %}
-<script>
-    {{ e.JavaScript }}
-</script>
-{% endfor %}
-
-{% csrf_token %}
-
-<script type="text/javascript">
-
-function submit_delete(del_str) {
-    $.ajax({
-        type: 'POST',
-        url: '/Delete',
-        data: {            
-            'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
-            'del_str': del_str
-        },
-        success: function (data) {
-            location.reload();
-        }
-    });
-}
-</script>
+    <!-- base-custom JavaScript -->
+    {% csrf_token %}
+    <script type="text/javascript">
+    function submit_delete(del_str) {
+        $.ajax({
+            type: 'POST',
+            url: '/Delete',
+            data: {            
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                'RedirectValid': $("input[name=RedirectValid]").val(),
+                'RedirectInvalid': $("input[name=RedirectInvalid]").val(),
+                'del_str': del_str
+            },
+            success: function (data) {
+                if (data['redirect'] == ''){
+                    location.reload();
+                } else {
+                    window.location.replace(data['redirect']);
+                }
+            }
+        });
+    }
+    </script>
 {% endblock javascripts %}
 
 

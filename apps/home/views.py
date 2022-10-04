@@ -1,79 +1,71 @@
-from .forms import *
+from .html_elements import *
 
 ##################################################################################################################
 # General Pages, Processing
 ##################################################################################################################
 
-def get_basic_context():
-    return {'sidebar':SIDEBAR}
-
-def render(context, request=None):
-    template = loader.get_template(context["Template"])
-    return HttpResponse(template.render(context, request))
+def get_context(request):
+    _context = {
+        'request':          request,
+        'user':             request.user,
+        'Sidebar':          SIDEBAR,
+        'Notifications':    LOAD_NOTIFICATIONS(),
+        'ExtendedUser':     request.user.extendeduser, 
+        'Shopper':          request.user.extendeduser.shopper,       
+        'Consignor':        request.user.extendeduser.consignor,
+        'Employee':         request.user.extendeduser.employee,
+        'PageName':         request.path.split('/')[-1],
+        'PageDesign':       PAGE_DESIGN[request.path.split('/')[-1]],
+        }
+    return _context
 
 @login_required(login_url='login/')
 def pages(request):
-    context = get_basic_context()
-    if request.method == 'POST':
-        return form_post(context, request)    
-    page_nm = request.path.split('/')[-1]
-    if page_nm == '':
-        page_nm = 'Dashboard'
-    context.update(PAGE_DESIGN[page_nm])
-    context['request'] = request
-    context['notifications'] = load_notifications()
-    return render(context, request)
+    if request.path.split('/')[-1] == '': return redirect('/Dashboard')
+    context = get_context(request)
+    context.update({'Context':context})
+    if context['PageDesign']['Type'] == 'Advanced':
+        return advanced_page(context)
+    return basic_page(context)
 
-def delete(request):
-    response = {'result':'success'}
-    if request.method == 'POST':
-        del_str = request.POST['del_str']
-        model_nm, pk = del_str.split(':')
-        model = MODELS[model_nm]
-        obj = model.objects.filter(id=int(pk))
-        obj_str = f'{obj}'
-        obj.delete()
-        add_notification(icon='delete', heading=f'Deleted {model_nm}: {obj_str}')
-    else:
-        add_notification(icon='delete', heading=f'Delete Failed')
-        response = {'result':'fail'}
-    return JsonResponse(response)
+def basic_page(context):
+    if context['request'].method == 'POST': 
+        return form_post(context, context['request'])
+    template = loader.get_template(context['PageDesign']['Template'])
+    return HttpResponse(template.render(context, context['request']))
 
-def render_form(request, name):
-    template, meta_forms = GET_META_FORM(request, name)
-    return template.render({'meta_forms':meta_forms}, request)
+def advanced_page(context):
+    if context['PageName'] == 'AddOrderItems':        
+        context['pk'] = context['request'].GET['pk']
+        context['order'] = Order.objects.get(pk=context['pk'])
+        context['OrderStr'] = str(context['order'])
+        context['Form'] = FORMS(context['request'], 'OrderForm')
+    template = loader.get_template(context['PageDesign']['Template'])
+    return HttpResponse(template.render(context, context['request']))
 
 
-def render_table(request, name):
-    context = TABLE_DESIGN[name]
-    context['Data'] = MODELS[context['Model']].objects.all()    
-    template = loader.get_template(context["Template"])
-    return template.render(context, request)
 
+##################################################################################################################
+# Form POST Handeler
+##################################################################################################################
 
-# General form post
 def form_post(context, request):
-    form_name = request.POST['Form_Name']
-    pk = request.POST['PK']
-    Redirect_Valid = request.POST['Redirect_Valid']
-    Redirect_Invalid = request.POST['Redirect_Invalid']
-
-
-    form_class = FORMS[form_name]
-    instance = GET_FORM_INSTANCE(request, pk, form_class.model)
-    form = form_class(data=request.POST, files=request.FILES, instance=instance)
-
+    form_name, _inst, valid_redirect, invalid_redirect = request.POST.get('FormName'), request.POST.get('Instance'), request.POST.get('RedirectValid'), request.POST.get('RedirectInvalid')
+    form = FORMS(request, form_name, _inst)
+    model_name = form.Meta.model.__name__
     if form.is_valid():
         m = form.save()
-        msg = 'Saved' if instance else f'Created'
-        add_notification(icon='save', heading=f'{form_name.capitalize()}', body=f'{m} - {msg}')        
-        return redirect(Redirect_Valid)
-    
-    msg = f'{instance} - Failed to Save' if instance else f'Could not create {form_name.capitalize()}'
-    msg2 = '/n'.join([f'{k}:  {v}'for k,v in form.errors.items()])
-    add_notification(icon='warn', heading=msg, body=msg2)
-
-    return redirect(Redirect_Invalid)
+        add_notification(
+            icon='save',
+            heading=f"{request.POST['FormName']}",
+            body=f"{m} - {'Saved' if _inst else f'Created'}"
+        )        
+        return redirect(valid_redirect)    
+    msg_head = f"{_inst} - Failed to Save" if _inst else f"Could not create {model_name}",
+    msg_body = "Form Errors:/n"
+    msg_body = '/n -'.join([f'{k}:  {v}'for k,v in form.errors.items()])
+    add_notification(icon='warn', heading=msg_head, body=msg_body)
+    return redirect(invalid_redirect)
 
 ##################################################################################################################
 # @receivers
@@ -100,38 +92,11 @@ def post_save_order(sender, instance, created, **kwargs):
     return
 
 ##################################################################################################################
-# Special Pages
+# Ajax Functions
 ##################################################################################################################
 
-def home_profile(context, request):
-    _forms = [
-        ('user-form', UserForm, request.user),
-        ('shopper-form', ShopperForm, request.user.shopper),
-        ('consignor-form', ConsignorForm, request.user.consignor),
-        ('employee-form', EmployeeForm, request.user.employee)
-    ]
+def process_manifest(request, context):    
 
-    if request.method == 'POST':
-        submitted_form = request.POST['button']
-        for nm, f, i in _forms:
-
-            if submitted_form == nm:
-                form = f(data=request.POST, files=request.FILES, instance=i)
-                if form.is_valid():
-                    add_notification(icon='save', heading=f'{nm.capitalize()}', body=f'{i} - Updated')
-                    form.save()
-                else:
-                    add_notification(icon='warn', heading=f'{nm.capitalize()}', body=f'{i} - Failed to Update')
-        return redirect(context['redirect'])
-    
-    context['forms'] = [(nm, f(instance=i)) for nm, f, i in _forms]
-        
-    return render(context, request)
-
-
-def manifest_process(context, request):
-    global notifications
-    
     myOrder = Order.objects.get(**{Order._pk_:context['pk']})
     df = pd.read_csv(myOrder.manifest_file)
     fields = [
@@ -168,5 +133,31 @@ def manifest_process(context, request):
         context['template'] = 'manifest-process'        
         context['df'] = df
         context['fields'] = fields
-        
+
     return render(context, request)
+
+def delete(request):
+    redirect=''
+    if request.method == 'POST':
+        if 'RedirectValid' in request.POST:
+            redirect = request.POST['RedirectValid']
+        del_str = request.POST['del_str']
+        model_nm, pk = del_str.split(':')
+        model = MODELS(model_nm)
+        obj = model.objects.get(pk=int(pk))
+        obj_str = f'{obj}'
+        obj.delete()
+        add_notification(icon='delete', heading=f'Deleted {model_nm}: {obj_str}')
+    else:
+        add_notification(icon='delete', heading=f'Delete Failed')
+        return JsonResponse({'result':'fail', 'redirect':redirect})
+    return JsonResponse({'result':'success', 'redirect':redirect})
+
+
+def get_order_items(request):
+    items = Order.objects.get(**{Order._pk_:request.POST['pk']})
+    return JsonResponse({'items':items})
+
+def get_store_input(request):
+    _store_input = store_input()
+    return JsonResponse({'store_input':_store_input})

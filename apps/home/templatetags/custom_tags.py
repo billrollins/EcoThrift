@@ -2,33 +2,50 @@ from ..views import *
 
 register = template.Library()
 
-@register.filter()
-def dict_get(d, k):
-    return d[k]
+##################################################################################################################
+# Basic Funtions
+##################################################################################################################
 
 @register.filter()
-def delete_str(obj):
-    return f'{obj.model_name}:{obj.__dict__[obj._pk_]}'
-
-    
+def _Get(dict, key):
+    return dict[key]
 
 @register.filter()
-def make_icon(i, size='1.em'):
+def _Del(obj):
+    return f'{type(obj).__name__}:{obj.pk}'    
+
+@register.filter()
+def _Format(str, dict):
+    return mark_safe(FORMAT(str, dict))
+
+@register.filter()
+def _Format2(str, dict1, dict2):
+    return mark_safe(DOUBLE_FORMAT(str, dict1, dict2))
+
+##################################################################################################################
+# Colors
+##################################################################################################################
+
+@register.filter()
+def _BgColor(color_name):
+    html = f'background-color: {ET_COLORS[color_name]};'
+    return mark_safe(html)
+
+##################################################################################################################
+# Basic Renders
+##################################################################################################################
+
+@register.filter()
+def _Icon(i, size='1.em'):
     html = f'<i class="{i}" style="font-size: {size}"></i>'
     return mark_safe(html)
 
-@register.filter()
-def filter_format(str, dict1):
-    if type(dict1) != dict:
-        dict1 = dict1.__dict__
-    return str.format(**dict1)
+##################################################################################################################
+# Notifications
+##################################################################################################################
 
 @register.filter()
-def filter_format_2(str, dict1, dict2):
-    return DOUBLE_FORMAT(str, dict1, dict2)
-
-@register.filter()
-def ntf_make(n):
+def _Notifications(n):
     html = ''
     if n:
         html = ['<div class="position-fixed bottom-1 end-1 z-index-2">']
@@ -49,11 +66,10 @@ def ntf_make(n):
             html += ['</div>']
         html += ['</div>']
         html = '\n'.join(html)
-
     return mark_safe(html)
 
 @register.filter()
-def ntf_show(n):
+def _NotificationJS(n):
     html = ''
     if n:
         _code = '\n'.join([
@@ -71,29 +87,55 @@ def ntf_show(n):
         ])
     return mark_safe(html)
 
-def render_p(data, Value_Just, Value_Case, Value, HREF, **kwargs):
-    html = f'<p class="text-xs mb-0 {Value_Just} {Value_Case}">{Value}</p>'
-    if HREF:
-        html = f'<a href="{HREF}">{html}</a>'    
-    return html.format(**data)
-
+##################################################################################################################
+# Page Filters
+##################################################################################################################
 
 @register.filter()
-def view_fields(field, row_data):
-    if field['Value_Type'] == 'p':
-        html = render_p(row_data.__dict__, **field)
-    elif field['Value_Type'] == 'custom':
-        html = DOUBLE_FORMAT(field['Value'], field, row_data.__dict__)
-    
+def _Element(e, context):
+    render_types = {'Form': render_form,'Table': render_table,'App': render_app}
+    return render_types[e['Type']](e, context)
+
+def render_app(e, context):
+    if e['Element'] == 'AddItemApp':
+        
+        context['ItemForm'] = FORMS(context['request'], f['Form'], f['Instance'])
+        
+        template = loader.get_template('forms/add-item-form.html')
+        return template.render(context, context['request'])
+    return template.render(context, context['request'])
+
+def render_form(e, context):
+    context['MetaForms'] = META_FORMS(e['Element'], context['request'])
+    template = loader.get_template(context['MetaForms'][0]['Template'])
+    return template.render(context, context['request'])
+
+def render_table(e, context):
+    context['TableDesign'] = TABLE_DESIGN[e['Element']]
+    context['TableData'] = MODELS(context['TableDesign']['Model']).objects.all()
+    template = loader.get_template(context['TableDesign']['Template'])
+    return template.render(context, context['request'])
+
+##################################################################################################################
+# Form Filters
+##################################################################################################################
+
+@register.filter()
+def _FormField(field, object):
+    row_data = object.__dict__
+    row_data['object'] = str(object)
+    html = field.format(**row_data)    
     return mark_safe(html)
 
-    
+##################################################################################################################
+# Table Filters
+##################################################################################################################
+
 @register.filter()
-def write_element(e, request):
-
-    if e['Type'] == 'form':
-        return render_form(request, e['Name'])
-    elif e['Type'] == 'table':
-        return render_table(request, e['Name'])
-
-    return ''
+def _TableField(f, object_row):
+    data_dict = object_row.__dict__
+    data_dict.update({'object':str(object_row)})
+    html = f'<p class="text-xs mb-0 {f["FieldClass"]}">{f["FieldValue"]}</p>'
+    if f["FieldHREF"]:
+        html = f'<a href="{f["FieldHREF"]}">{html}</a>'
+    return mark_safe(html.format(**data_dict))

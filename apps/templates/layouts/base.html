@@ -17,7 +17,7 @@
   <link href="/static/assets/css/nucleo-icons.css" rel="stylesheet" />
   <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
   <!-- Font Awesome Icons -->
-  <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/7a5bd9a427.js" crossorigin="anonymous"></script>
   <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
   <!-- CSS Files -->
   <link id="pagestyle" href="/static/assets/css/soft-ui-dashboard.css?v=1.0.5" rel="stylesheet" />
@@ -44,8 +44,7 @@
 
 <!--  Including my custom filters -->
 {% load custom_tags %}
-
-<body class="{% block body_class %}{% endblock %}">
+<body class="{% block body_class %}g-sidenav-show bg-gray-100{% endblock %}">
 
   {% include "includes/sidebar.html" %}
 
@@ -56,7 +55,7 @@
     {% block content %}{% endblock content %}
 
     <!--  Making notifications if there are any -->
-    {{ notifications | ntf_make }}
+    {{ Notifications | _Notifications }}
 
   </main>
 
@@ -87,7 +86,7 @@
   {% block javascripts %}{% endblock javascripts %}
 
 
-  {{ notifications | ntf_show }}
+  {{ Notifications | _NotificationJS }}
   
 </body>
 </html>

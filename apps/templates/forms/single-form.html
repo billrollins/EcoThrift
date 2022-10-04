@@ -1,43 +1,60 @@
 {% load custom_tags %}
 
 <!-- Form & Token -->
-{% for meta in meta_forms %}
+{% for meta_form in MetaForms %}
 <form action="" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
     <!-- Form Head -->
-    <h5 class="font-weight-bolder mb-0">{{ meta.Header }}</h5>
-    {% if form.SubHeader %}
-       <p class="mb-0 text-sm">{{ meta.SubHeader }}</p>
+    <h4 class="mt-3">{{ meta_form.Header }}</h4>
+    {% if meta_form.SubHeader %}
+        <h6 class="text-secondary">{{ meta_form.SubHeader }}</h6>        
     {% endif %}
 
     <!-- Form Content -->
-    {% for row in meta.thisForm.field_struct %}
-    <div class="row mt-3">
-        {% for f in row %}
-            {% if f.Heading %}
-                <h7 class="font-weight-bolder mt-3">{{ f.Heading }}</h7>
-            {% endif %}
-                <div class="col-{{ f.Size }}">
-                    <label>{{ f.Label }}</label>
-                    {{ meta.thisForm|dict_get:f.Name }}
-                </div>
-        {% endfor %}
-    </div>
+    {% for form_field in meta_form.FormDesign.Fields %}
+        {% if form_field.RowCode == 'Start' or form_field.RowCode == 'Both' %}<div class="row mt-3"> {% endif %}
+            {% if form_field.Heading %}<h6 class="mt-3 text-primary">{{ form_field.Heading }}</h6>{% endif %}
+            <div class="col-{{ form_field.Size }}">
+                <label>{{ form_field.Label }}</label>
+                {{ meta_form.Form|_Get:form_field.Field }}
+            </div>
+        {% if form_field.RowCode == 'End' or form_field.RowCode == 'Both' %}</div>{% endif %}
     {% endfor %}
 
     <!-- hidden variables -->
-    <input type="hidden" name="Form_Name" value="{{ meta.Form }}">
-    <input type="hidden" name="PK" value="{{ meta.pk }}">
-    <input type="hidden" name="Redirect_Valid" value="{{ meta.Redirect_Valid }}">
-    <input type="hidden" name="Redirect_Invalid" value="{{ meta.Redirect_Invalid }}">
+    <input type="hidden" name="FormName" value="{{ meta_form.FormName }}">
+    <input type="hidden" name="Instance" value="{{ meta_form.Instance }}">
+    <input type="hidden" name="RedirectValid" value="{{ meta_form.RedirectValid }}">
+    <input type="hidden" name="RedirectInvalid" value="{{ meta_form.RedirectInvalid }}">
 
-    <!-- Submit Button -->
-    <div class="button-row d-flex mt-4">
-        <button class="btn bg-gradient-dark ms-auto mb-0" type="submit">
-            {{ meta.Button }}
+    <div class="text-right button-row mt-4" style="text-align: right;">
+
+    <!-- Form Buttons -->
+    <div class="button-row mt-4">
+        <!-- Submit Button -->
+        <button class="btn px-2 mx-2" type="submit">
+            <span class="btn-inner--text mx-1">{{ meta_form.Submit }}</span>            
         </button>
-    </div>
+    
+    {% if meta_form.Items != "" %}
+        <!-- Add Items -->
+        <a href="{{ meta_form.Items|_Format:meta_form.Form }}">
+            <button class="btn btn-icon px-2 mx-2" type="button">
+                <span class="btn-inner--icon mx-1"><i class="far fa-square-plus text-success"></i></span>
+                <span class="btn-inner--text mx-1">Add Items</span>
+            </button>
+        </a>
+    {% endif %}
 
+    {% if meta_form.Delete != "" and meta_form.Form.instance %}
+        <!-- Delete Button -->
+        <button class="btn btn-icon px-2 mx-2" type="button" 
+        onclick="submit_delete('{{ meta_form.Form.instance|_Del }}');return false;">
+            <span class="btn-inner--icon mx-1"><i class="fa fa-trash text-danger"></i></span>
+            <span class="btn-inner--text mx-1">{{meta_form.Delete}}</span>
+        </button>
+    {% endif %}
+    </div>
 </form>
 {% endfor %}

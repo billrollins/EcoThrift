@@ -4,32 +4,32 @@
     <table class="table align-items-center" id="datatable-search">
         <thead>
             <tr>
-            {% for f in Fields %}
-                <th class="{{ f.Head_Case }} {{ f.Head_Just }} text-secondary text-xxs font-weight-bolder opacity-7 nopad">{{ f.Head }}</th>
+            {% for f in TableDesign.Fields %}
+                <th class="{{ f.HeadClass }} text-secondary text-xxs font-weight-bolder opacity-7 nopad">{{ f.Head }}</th>
             {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% for object in Data %}
+            {% for object_row in TableData %}
                 <tr>                    
-                    {% for field in Fields %}
+                    {% for table_field in TableDesign.Fields %}
                         <td>
-                            {{ field|view_fields:object }}
+                            {{ table_field|_TableField:object_row }}
                         </td>
                     {% endfor %}
                     
-                    {% if Edit %}
+                    {% if TableDesign.Edit %}
                         <td>
-                            <a href="{{ Edit|filter_format:object }}"><i class = "fa fa-pen text-info"></i></a>
+                            <a href="{{ TableDesign.Edit|_Format:object_row }}"><i class = "fa fa-pen text-info"></i></a>
                         </td>
                     {% endif %}
 
-                    {% if Delete %}
+                    {% if TableDesign.Delete %}
                         <td>
-                            <a  id="{{ object|delete_str }}" 
+                            <a  id="{{ object_row|_Del }}" 
                                 title="Click to Delete" 
                                 href="#" 
-                                onclick="submit_delete('{{ object|delete_str }}');return false;">
+                                onclick="submit_delete('{{ object_row|_Del }}');return false;">
                                 <i class = "fa fa-trash text-danger" ></i>
                             </a>
                         </td>

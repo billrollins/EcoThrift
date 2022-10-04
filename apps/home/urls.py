@@ -8,16 +8,24 @@ from apps.home import views
 
 
 urlpatterns = [
+
+    #Basic Pages
+
+    path('', views.pages, name=''),
+    path('Dashboard', views.pages, name='Dashboard'),
+    path('MyProfile', views.pages, name='MyProfile'),
+
+    #-- Adds
     path('AddDepartment', views.pages, name='AddDepartment'),
     path('AddDropoff', views.pages, name='AddDropoff'),
-    path('AddItem', views.pages, name='AddItem'),
     path('AddLiquidator', views.pages, name='AddLiquidator'),
     path('AddLocation', views.pages, name='AddLocation'),
     path('AddOrder', views.pages, name='AddOrder'),
     path('AddPosition', views.pages, name='AddPosition'),
     path('AddSection', views.pages, name='AddSection'),
     path('AddStore', views.pages, name='AddStore'),
-    path('Dashboard', views.pages, name='Dashboard'),
+
+    #-- Edits
     path('EditDepartment', views.pages, name='EditDepartment'),
     path('EditDropoff', views.pages, name='EditDropoff'),
     path('EditItem', views.pages, name='EditItem'),
@@ -27,6 +35,8 @@ urlpatterns = [
     path('EditPosition', views.pages, name='EditPosition'),
     path('EditSection', views.pages, name='EditSection'),
     path('EditStore', views.pages, name='EditStore'),
+    
+    #-- Views
     path('ViewDepartments', views.pages, name='ViewDepartments'),
     path('ViewDropoffs', views.pages, name='ViewDropoffs'),
     path('ViewItems', views.pages, name='ViewItems'),
@@ -36,6 +46,13 @@ urlpatterns = [
     path('ViewPositions', views.pages, name='ViewPositions'),
     path('ViewSections', views.pages, name='ViewSections'),
     path('ViewStores', views.pages, name='ViewStores'),
+
+    # Advanced Pages
+    path('AddOrderItems', views.pages, name='AddOrderItems'),
+
+    # Ajax Calls
     path('Delete', views.delete, name='delete'),
-    path('', views.pages, name=''),
+    path('ProcessManifest', views.delete, name='process_manifest'),    
+    path('get_store_input', views.get_store_input, name='get_store_input'),
 ]
+    
