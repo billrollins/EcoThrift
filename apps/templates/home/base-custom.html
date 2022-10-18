@@ -36,7 +36,7 @@
 
 <!-- Custom JavaScript -->
 {% block javascripts %}
-    
+
     <!-- Element JavaScript -->
     {% for e in Elements %}
     <script>
@@ -47,28 +47,40 @@
     <!-- base-custom JavaScript -->
     {% csrf_token %}
     <script type="text/javascript">
-    function submit_delete(del_str) {
-        $.ajax({
-            type: 'POST',
-            url: '/Delete',
-            data: {            
-                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
-                'RedirectValid': $("input[name=RedirectValid]").val(),
-                'RedirectInvalid': $("input[name=RedirectInvalid]").val(),
-                'del_str': del_str
-            },
-            success: function (data) {
-                if (data['redirect'] == ''){
-                    location.reload();
-                } else {
-                    window.location.replace(data['redirect']);
+        function submit_delete(del_str) {
+            $.ajax({
+                type: 'POST',
+                url: '/Delete',
+                data: {
+                    'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                    'RedirectValid': $("input[name=RedirectValid]").val(),
+                    'RedirectInvalid': $("input[name=RedirectInvalid]").val(),
+                    'del_str': del_str
+                },
+                success: function (data) {
+                    if (data['redirect'] == ''){
+                        location.reload();
+                    } else {
+                        window.location.replace(data['redirect']);
+                    }
                 }
+            });
+        }
+    </script>
+    <script src="/static/assets/js/plugins/datatables.js"></script>
+    <script>
+        var dataTableBasic = null;
+        if (typeof $('#datatable-basic')[0] != "undefined") {
+            dataTableBasic = new simpleDatatables.DataTable("#datatable-basic", {
+            searchable: true,
+            fixedHeight: true
+            });
+        }
+        window.onload = function() {
+            if (typeof $('#datatable-basic')[0] != "undefined") {
+                dataTableBasic.refresh()
             }
-        });
-    }
+        };
+        
     </script>
 {% endblock javascripts %}
-
-
-
-

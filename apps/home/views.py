@@ -1,3 +1,4 @@
+from traitlets import Instance
 from .html_elements import *
 
 ##################################################################################################################
@@ -9,6 +10,7 @@ def get_context(request):
         'request':          request,
         'user':             request.user,
         'Sidebar':          SIDEBAR,
+        'Today':            STR_TODAY(),        
         'Notifications':    LOAD_NOTIFICATIONS(),
         'ExtendedUser':     request.user.extendeduser, 
         'Shopper':          request.user.extendeduser.shopper,       
@@ -35,14 +37,20 @@ def basic_page(context):
     return HttpResponse(template.render(context, context['request']))
 
 def advanced_page(context):
-    if context['PageName'] == 'AddOrderItems':        
+    if context['PageName'] == 'ProcessOrder':
         context['pk'] = context['request'].GET['pk']
-        context['order'] = Order.objects.get(pk=context['pk'])
-        context['OrderStr'] = str(context['order'])
+        context['Order'] = Order.objects.get(pk=context['pk'])
+        context['OrderStr'] = str(context['Order'])
         context['Form'] = FORMS(context['request'], 'OrderForm')
+        
+    elif context['PageName'] == 'CheckInOrder' :
+        context['pk'] = context['request'].GET['pk']
+        context['Order'] = Order.objects.get(pk=context['pk'])
+        context['OrderStr'] = str(context['Order'])
+        context['Form'] = FORMS(context['request'], 'OrderForm')
+
     template = loader.get_template(context['PageDesign']['Template'])
     return HttpResponse(template.render(context, context['request']))
-
 
 
 ##################################################################################################################
@@ -55,11 +63,13 @@ def form_post(context, request):
     model_name = form.Meta.model.__name__
     if form.is_valid():
         m = form.save()
-        add_notification(
-            icon='save',
+        try:
             heading=f"{request.POST['FormName']}",
             body=f"{m} - {'Saved' if _inst else f'Created'}"
-        )        
+        except:
+            heading=f"Saved Model: Error on Model Str",
+            body=""
+        add_notification(icon='save',heading=heading,body=body)        
         return redirect(valid_redirect)    
     msg_head = f"{_inst} - Failed to Save" if _inst else f"Could not create {model_name}",
     msg_body = "Form Errors:/n"
@@ -95,46 +105,32 @@ def post_save_order(sender, instance, created, **kwargs):
 # Ajax Functions
 ##################################################################################################################
 
-def process_manifest(request, context):    
-
-    myOrder = Order.objects.get(**{Order._pk_:context['pk']})
+def process_manifest(request):
+    myOrder = Order.objects.get(pk=request.POST['order_id'])
     df = pd.read_csv(myOrder.manifest_file)
-    fields = [
-        [['Description', 'description'],['Department', 'department'],['Brand', 'brand'],['Category 1', 'category_1'],['Category 2', 'category_2']],
-        [['Quantity', 'quantity'],['Unit Retail', 'unit_retail'],['Ext Retail', 'ext_retail'],['Fulfilled', 'fulfilled'], ['Delivered', 'delivered']]
-    ]
+    df.columns = df.columns.str.lower()
+    heading_template, heading_fields = GET_MANIFEST_FIELDS(df.columns)
+    df = df[list(heading_fields)].rename(columns=heading_fields)
+    success_cnt, fail_cnt = 0, 0
+    for _, line_item in df.iterrows():
+        kwargs = DICT_REMOVE_EMPTY(dict(line_item))
+        new_item = Item(**kwargs)
+        new_item.employee_id = request.POST['employee_id']
+        new_item.order_id = request.POST['order_id']
+        new_item.status_date = request.POST['status_date']
+        try:
+            new_item.save()
+            success_cnt += 1
+        except:
+            fail_cnt += 1
 
-    if request.method == 'POST':
-        # Delete previous line items
+    add_str = f'Added {success_cnt} rows to Order'
+    add_notification(icon='add', heading=add_str)
 
-        lines = Order_Line.objects.filter(order_id = myOrder.id).all()
-        if len(lines) > 0:
-            add_notification(icon='delete', heading=f'Deleted {len(lines)} rows from Order_Line')
-            lines.delete()
+    fail_str = f'Could not add {fail_cnt} rows to Order'
+    add_notification(icon='warn', heading=fail_str)
 
-        posted_fields = {}
-        for field_row in fields:
-            for lbl, field in field_row:
-                if request.POST[field]:
-                    posted_fields[field] = request.POST[field]
-        for r in df.iterrows():
-            kwargs = {'order': myOrder}
-            kwargs.update(
-                {k: r[1][v] for k,v in posted_fields.items()}
-            )
-            newOrder_Line = Order_Line(**kwargs)
-            newOrder_Line.save()
-
-        add_notification(icon='add', heading=f'Added {df.shape[0]} rows to Order_Line')
-
-        return redirect('/operations-order-view.html')
-
-    else:
-        context['template'] = 'manifest-process'        
-        context['df'] = df
-        context['fields'] = fields
-
-    return render(context, request)
+    return JsonResponse({'response':add_str})
 
 def delete(request):
     redirect=''
@@ -154,10 +150,94 @@ def delete(request):
     return JsonResponse({'result':'success', 'redirect':redirect})
 
 
-def get_order_items(request):
-    items = Order.objects.get(**{Order._pk_:request.POST['pk']})
-    return JsonResponse({'items':items})
+def AjxFormData(request):
+    form_name = request.POST['FormName']
+    form = FORMS(request, form_name, instance=request.POST.get('pk'), get_cur_data=True)
+    design = FORM_DESIGN[form_name]
+    fields = [(fd['Size'], fd['Label'], form[fd['Field']]) for fd in design['Fields']]
+    _form_data = form_content_html(fields)
+    return JsonResponse({'form_data':_form_data})
 
-def get_store_input(request):
-    _store_input = store_input()
-    return JsonResponse({'store_input':_store_input})
+
+
+def AjxProcOrderAgg(request):
+    result = 'Fail'
+    cmd = request.POST['Command']
+    order_id = request.POST['order_id']
+
+    if cmd =='DELETE_ALL':
+        exclude = ['CheckedIn']
+        items = Item.objects.filter(
+                order_id = order_id
+            ).exclude(
+                status__in=exclude
+            )
+        del_cnt = items.count()
+        items.delete()
+        add_notification(icon='delete', heading=f'Deleted {del_cnt} Items!')
+        result = 'Success'
+    elif cmd == 'FILL_DELIVERED':
+        filter = ['']
+        items = Item.objects.filter(
+                order_id = order_id
+            ).filter(
+                status__in=filter
+            )
+        for i in items:
+            i.status = 'Delivered'
+        Item.objects.bulk_update(items, ['status'])
+        result = 'Success'        
+        add_notification(icon='save', heading=f'Updated {items.count()} Items!')
+
+    return JsonResponse({'result':result})
+
+def AjxTableData(request):
+    # Get fields
+    table_name = request.POST['TableName']
+
+    design = TABLE_DESIGN[table_name]
+    fields = [fd['FieldValue'] for fd in design['Fields']]
+    labels = [fd['Head'] for fd in design['Fields']]
+    fieldclass = [fd['FieldClass'] for fd in design['Fields']]
+
+    # Get Objects
+    thisorder = Order.objects.get(pk=request.POST['pk'])
+    data = Item.objects.filter(order_id=thisorder.pk)
+
+    # Get table HTML
+    _table_data = table_html(fields, labels, data, fieldclass=fieldclass, id='item_tbl', edit_btn=design['Edit'], del_btn=design['Delete'])
+    
+    return JsonResponse({'table_data':_table_data})
+
+def AjxCheckIn(request):
+    # Get fields
+    item_pk = request.POST['item_pk']
+    item = Item.objects.get(pk=item_pk)
+    item.status = 'CheckedIn'
+    item.status_date = STR_TODAY()
+    item.save()
+    add_notification(icon='save', heading="Checked In Item", body=item.__str__())
+    return JsonResponse({})
+
+
+
+
+def save_form_data(request):
+    form = FORMS(request, 'ProcessOrderForm', instance=request.POST['Instance'])
+    response = 'fail'
+    if form.is_valid():
+        m = form.save()
+        m.order_id = request.POST['order_id']
+        m.employee_id = request.POST['employee_id']
+        m.status_date = request.POST['status_date']
+        m = form.save()
+
+
+        add_notification(icon='save', heading="Saved Item")
+        response = 'success'
+    else:    
+        add_notification(icon='warn', heading="Could not save Item")
+
+    return JsonResponse({'response':response})
+
+    

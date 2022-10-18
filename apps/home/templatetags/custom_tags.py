@@ -8,11 +8,11 @@ register = template.Library()
 
 @register.filter()
 def _Get(dict, key):
-    return dict[key]
+    return mark_safe(dict[key])
 
 @register.filter()
 def _Del(obj):
-    return f'{type(obj).__name__}:{obj.pk}'    
+    return f'{type(obj).__name__}:{obj.pk}'
 
 @register.filter()
 def _Format(str, dict):
@@ -117,23 +117,14 @@ def render_table(e, context):
     return template.render(context, context['request'])
 
 ##################################################################################################################
-# Form Filters
-##################################################################################################################
-
-@register.filter()
-def _FormField(field, object):
-    row_data = object.__dict__
-    row_data['object'] = str(object)
-    html = field.format(**row_data)    
-    return mark_safe(html)
-
-##################################################################################################################
 # Table Filters
 ##################################################################################################################
 
 @register.filter()
 def _TableField(f, object_row):
     data_dict = object_row.__dict__
+    for attr in [d[:-3] for d in data_dict if d[-3:] == '_id']:
+        data_dict[f'{attr}_str'] = str(object_row.__getattribute__(attr))
     data_dict.update({'object':str(object_row)})
     html = f'<p class="text-xs mb-0 {f["FieldClass"]}">{f["FieldValue"]}</p>'
     if f["FieldHREF"]:

@@ -1,42 +1,45 @@
-{% load custom_tags %}
+
+<!-- Tags --> 
+{% load custom_tags %} 
+
 
 <div class="table-responsive">
-    <table class="table align-items-center" id="datatable-search">
-        <thead>
-            <tr>
+    <table class="table table-flush" id="datatable-basic">
+    <thead class="thead-light">
+        <tr>
             {% for f in TableDesign.Fields %}
                 <th class="{{ f.HeadClass }} text-secondary text-xxs font-weight-bolder opacity-7 nopad">{{ f.Head }}</th>
             {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for object_row in TableData %}
-                <tr>                    
-                    {% for table_field in TableDesign.Fields %}
-                        <td>
-                            {{ table_field|_TableField:object_row }}
-                        </td>
-                    {% endfor %}
-                    
-                    {% if TableDesign.Edit %}
-                        <td>
-                            <a href="{{ TableDesign.Edit|_Format:object_row }}"><i class = "fa fa-pen text-info"></i></a>
-                        </td>
-                    {% endif %}
+            {% if TableDesign.Edit %}<th class="text-uppercase text-center text-secondary text-xxs font-weight-bolder opacity-7"></th>{% endif %}
+            {% if TableDesign.Delete %}<th class="text-uppercase text-center text-secondary text-xxs font-weight-bolder opacity-7"></th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for object_row in TableData %}
+            <tr>
+                {% for table_field in TableDesign.Fields %}
+                <td>
+                    {{ table_field|_TableField:object_row }}
+                </td>
+                {% endfor %}
 
-                    {% if TableDesign.Delete %}
-                        <td>
-                            <a  id="{{ object_row|_Del }}" 
-                                title="Click to Delete" 
-                                href="#" 
-                                onclick="submit_delete('{{ object_row|_Del }}');return false;">
-                                <i class = "fa fa-trash text-danger" ></i>
-                            </a>
-                        </td>
-                    {% endif %}
-                    
-                </tr>
+                {% if TableDesign.Edit %}
+                <td>
+                    <a href="{{ TableDesign.Edit|_Format:object_row }}"><i class="fa fa-pen text-info"></i></a>
+                </td>
+                {% endif %}
+
+                {% if TableDesign.Delete %}
+                <td>
+                    <a id="{{ object_row|_Del }}" title="Click to Delete" href="#"
+                        onclick="submit_delete('{{ object_row|_Del }}');return false;">
+                        <i class="fa fa-trash text-danger"></i>
+                    </a>
+                </td>
+                {% endif %}
+
+            </tr>
             {% endfor %}
-        </tbody>
+    </tbody>
     </table>
 </div>

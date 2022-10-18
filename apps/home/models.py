@@ -100,7 +100,7 @@ class Department(Model):
     department_manager = models.ForeignKey(Employee, on_delete=models.SET_NULL, blank=False, default=None, null=True)
     name = models.CharField(max_length=30, blank=True, default='', null=False)
     def __str__(self):
-        return f' {self.name}|{STR_FULL_NM(self.department_manager.user.base_user) if self.department_manager else ""}'
+        return f'({self.store.name}) {self.name}|{STR_FULL_NM(self.department_manager.user.base_user) if self.department_manager else ""}'
 
 class Section(Model):
     store = models.ForeignKey(Store, on_delete=models.SET_NULL, blank=True, default=None, null=True)
@@ -153,20 +153,34 @@ class Item(Model):
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, blank=True, default=None, null=True)
     dropoff = models.ForeignKey(Dropoff, on_delete=models.SET_NULL, blank=True, default=None, null=True)
     created_date = models.DateField(blank=True, default=date.today, null=False)
-    zero_date = models.DateField(blank=True, default=None, null=True)
-    change_date = models.DateField(blank=True, default=None, null=True)
-    section = models.ForeignKey(Section, on_delete=models.SET_NULL, blank=True, default=None, null=True)
     description = models.CharField(max_length=100, blank=True, default='', null=False)
     brand = models.CharField(max_length=100, blank=True, default='', null=False)
     condition = models.CharField(max_length=50, blank=True, default='', null=False, choices=CONDITION_LIST)
-    tested = models.CharField(max_length=50, blank=True, default='', null=False, choices=TESTED_LIST)
-    tags = models.CharField(max_length=999, blank=True, default='', null=False)
+    model = models.CharField(max_length=100, blank=True, default='', null=False)
+    units = models.IntegerField(blank=True, default=0, null=False)
+    unit_retail = models.DecimalField(blank=True, default=None, null=True, max_digits=8, decimal_places=2)
+    department = models.CharField(max_length=100, blank=True, default='', null=False)
+    item_class = models.CharField(max_length=100, blank=True, default='', null=False)
+    category = models.CharField(max_length=100, blank=True, default='', null=False)
+    subcategory = models.CharField(max_length=100, blank=True, default='', null=False)
+    image = models.ImageField(blank=True, default='', null=False, upload_to=ITM_IMG)
     price_code = models.CharField(max_length=2, blank=True, default='', null=False)
-    static_price = models.DecimalField(blank=True, default=None, null=True, max_digits=8, decimal_places=2)
-    expected_price = models.DecimalField(blank=True, default=None, null=True, max_digits=8, decimal_places=2)
-    status_change = models.CharField(max_length=50, blank=True, default='', null=False, choices=STATUS_CHANGE_LIST)
+    static_price = models.DecimalField(blank=True, default=None, null=True, max_digits=8, decimal_places=2, choices=PRICE_LIST)
+    expected_price = models.DecimalField(blank=True, default=None, null=True, max_digits=8, decimal_places=2, choices=PRICE_LIST)
+    starting_price = models.DecimalField(blank=True, default=None, null=True, max_digits=8, decimal_places=2, choices=PRICE_LIST)
+    status = models.CharField(max_length=50, blank=True, default='', null=False, choices=STATUS_CHANGE_LIST)
+    tested = models.CharField(max_length=50, blank=True, default='', null=False, choices=TESTED_LIST)
+    zero_date = models.DateField(blank=True, default=None, null=True)
+    status_date = models.DateField(blank=True, default=None, null=True)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, blank=True, default=None, null=True)
+    tags = models.CharField(max_length=999, blank=True, default='', null=False)
     def __str__(self):
-        return f'{self.id} {self.location}|{self.description[:50]}'
-    
+        return f'{self.id} {self.location}|{self.description[:50]}'	
+
+#############################################################
+# Paste Model Code Above this line
+#############################################################	
+
 def MODELS(class_name):
     return globals()[class_name]
+

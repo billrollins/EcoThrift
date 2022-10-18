@@ -15,7 +15,7 @@ from django.utils.safestring import mark_safe
 import os
 import pandas as pd
 import numpy as np
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from string import ascii_uppercase
 from decimal import Decimal
 from phonenumber_field.modelfields import PhoneNumberField
@@ -105,11 +105,18 @@ def STR_LOC_1(m):
 def STR_LOC_2(m):
     return f'{m.state} {m.city}'
 
+def STR_DATE(d):
+    return d.isoformat()
+
+def STR_TODAY(delta=timedelta(0)):
+    if type(delta) == int:
+        delta = timedelta(days=delta)
+    return STR_DATE(date.today() + delta)
+
     
 ##################################################################################################################
-# Process Key Values
+# Key/Value or Dictionary Functions
 ##################################################################################################################
-
 
 TYPES = ['Form','Table']
 def TYPE(str):
@@ -147,17 +154,31 @@ def GET_DCT_FROM_STR(prep_str):
 
 def MAKE_DICT(obj):
     _dict = obj
-    if type(_dict) != dict:
-        try:            
-            _dict = _dict.__dict__
+    i = 0 
+    while type(_dict) != dict:
+        try:
+            # Forms have a get_dict() function which includes the model pk
+            if i == 0:
+                _dict = _dict.get_dict()
+            elif i == 1:
+                _dict = dict(obj)
+            elif i==2:
+                _dict = _dict.__dict__
+            else:
+                _dict = globals()
         except:
-            _dict = dict(obj)
+            i += 1
+            if i > 4: return False
     return _dict
 
 def FORMAT(str, obj):
     format_dict = MAKE_DICT(obj)
     format_str = str.format(**format_dict)
     return format_str
+
+def DICT_REMOVE_EMPTY(dict):
+    for k in [k for k, v in dict.items() if not v]: del dict[k] 
+    return dict
 
 
 ##################################################################################################################
@@ -232,123 +253,203 @@ SITE_DESIGN = _get_site_design([
     ['table','table_field']
 ])
     
-PAGE_DESIGN = SITE_DESIGN['Page']
-MODEL_DESIGN = SITE_DESIGN['Model']
-FORM_DESIGN = SITE_DESIGN['Form']
-TABLE_DESIGN = SITE_DESIGN['Table']
 SIDEBAR = SITE_DESIGN['Sidebar']
+PAGE_DESIGN = SITE_DESIGN['Page']
+META_FORM_DESIGN = SITE_DESIGN['MetaForm']
+FORM_DESIGN = SITE_DESIGN['Form']
+MODEL_DESIGN = SITE_DESIGN['Model']
+TABLE_DESIGN = SITE_DESIGN['Table']
 
 ##################################################################################################################
 # Prices
 ##################################################################################################################
 
-PRICE_DICT = {}
-_prices = [50000, 47000, 44000, 41000, 38000, 35000, 32000, 29000, 26000, 23000, 20000, 18000, 16000, 14000, 12000, 11000, 10000, 9500, 9000, 8500, 8000, 7500, 7000, 6500, 6000, 5500, 5000, 4700, 4400, 4100, 3800, 3500, 3200, 2900, 2600, 2300, 2000, 1800, 1600, 1400, 1200, 1100, 1000, 950, 900, 850, 800, 750, 700, 650, 600, 550, 500, 470, 440, 410, 380, 350, 320, 290, 260, 230, 200, 180, 160, 140, 120, 110, 100, 95, 90, 85, 80, 75, 70, 65, 60, 55, 50, 47, 44, 41, 38, 35, 32, 29, 26, 23, 20, 18, 16, 14, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
-for i in range(1,5):
-    for c in ascii_uppercase:
-        PRICE_DICT[f'{c}{i}'] = _prices
-        _prices = _prices[1:] + _prices[:1]        
+ECO_OPEN_DATE = date(2022, 10, 31)
+ECO_PRICE_COUNT = 104
+ECO_PRICES = np.array([    
+    1,     2,     3,     4,     5,     6,     7,     8,     9,
+    10,    11,    12,    14,    16,    18,    20,    23,    26,
+    29,    32,    35,    38,    41,    44,    47,    50,    55,
+    60,    65,    70,    75,    80,    85,    90,    95,   100,
+    110,   120,   140,   160,   180,   200,   230,   260,   290,
+    320,   350,   380,   410,   440,   470,   500,   550,   600,
+    650,   700,   750,   800,   850,   900,   950,  1000,  1100,
+    1200,  1400,  1600,  1800,  2000,  2300,  2600,  2900,  3200,
+    3500,  3800,  4100,  4400,  4700,  5000,  5500,  6000,  6500,
+    7000,  7500,  8000,  8500,  9000,  9500, 10000, 11000, 12000,
+    14000, 16000, 18000, 20000, 23000, 26000, 29000, 32000, 35000,
+    38000, 41000, 44000, 47000, 50000
+])
+
+def GET_TODAYS_PRICES():
+    _dict, _reverse_dict = {}, {}
+    _prices = np.sort(ECO_PRICES)[::-1]
+    delta_days = (date.today() - ECO_OPEN_DATE).days
+    price_delta = delta_days // 7
+    
+    for i in range(1,5):
+        for c in ascii_uppercase:
+            price_delta = price_delta % ECO_PRICE_COUNT
+            lbl, price = f'{c}{i}', ECO_PRICES[price_delta]  
+            _dict[lbl] = price
+            _reverse_dict[price] = lbl
+            price_delta += 1
+    
+    return _dict, _reverse_dict
+
+PRICE_DICT, REVERSE_PRICE_DICT = GET_TODAYS_PRICES()
+
+def GET_PRICE_ARRAY(from_price):
+    _i = np.searchsorted(ECO_PRICES, from_price)
+    return np.concatenate([ECO_PRICES[_i:], ECO_PRICES[:_i]])
 
 ##################################################################################################################
 # Choice Lists
 ##################################################################################################################
 
+PRICE_LIST = [(Decimal(i*1.00), f'{i:,.02f}') for i in ECO_PRICES]
+
+LOCATION_LIST = []
+
+def _SET_LOCATION_LIST(LocationClass):
+    loc = np.array([[l.section.name, l.label] for l in LocationClass.objects.all()])
+    loc = loc[loc[:,0].argsort()]
+    return [(f'{l[0]}_{l[1]}', f'{l[0]} - {l[1]}') for l in loc]
+
 ORDER_CATEGORY_LIST = [
-    ('APPAREL','APPAREL'),
-    ('APPLIANCES - LARGE','APPLIANCES - LARGE'),
-    ('APPLIANCES - SMALL','APPLIANCES - SMALL'),
-    ('BIKES & RIDE ONS','BIKES & RIDE ONS'),
-    ('CONSUMER ELECTRONICS','CONSUMER ELECTRONICS'),
-    ('COOKWARE','COOKWARE'),
-    ('DOMESTICS','DOMESTICS'),
-    ('FOOD','FOOD'),
-    ('FOOTWEAR','FOOTWEAR'),
-    ('FURNITURE','FURNITURE'),
-    ('GARDEN / PATIO','GARDEN / PATIO'),
-    ('GENERAL MERCHANDISE','GENERAL MERCHANDISE'),
-    ('HARDWARE','HARDWARE'),
-    ('HEALTH & BEAUTY','HEALTH & BEAUTY'),
-    ('HOME DECOR','HOME DECOR'),
-    ('JEWELRY','JEWELRY'),
-    ('LUGGAGE','LUGGAGE'),
-    ('MAJOR APPLIANCES','MAJOR APPLIANCES'),
-    ('MIXED LOTS','MIXED LOTS'),
-    ('RUGS','RUGS'),
-    ('SEASONAL','SEASONAL'),
-    ('SPORTING GOODS','SPORTING GOODS'),
-    ('TOOLS','TOOLS'),
-    ('TOYS','TOYS'),
-    ('TVS','TVS'),
-    ('VACUUMS','VACUUMS')
+    ('APPAREL', 'APPAREL'),
+    ('APPLIANCES - LARGE', 'APPLIANCES - LARGE'),
+    ('APPLIANCES - SMALL', 'APPLIANCES - SMALL'),
+    ('BIKES & RIDE ONS', 'BIKES & RIDE ONS'),
+    ('CONSUMER ELECTRONICS', 'CONSUMER ELECTRONICS'),
+    ('COOKWARE', 'COOKWARE'),
+    ('DOMESTICS', 'DOMESTICS'),
+    ('FOOD', 'FOOD'),
+    ('FOOTWEAR', 'FOOTWEAR'),
+    ('FURNITURE', 'FURNITURE'),
+    ('GARDEN / PATIO', 'GARDEN / PATIO'),
+    ('GENERAL MERCHANDISE', 'GENERAL MERCHANDISE'),
+    ('HARDWARE', 'HARDWARE'),
+    ('HEALTH & BEAUTY', 'HEALTH & BEAUTY'),
+    ('HOME DECOR', 'HOME DECOR'),
+    ('JEWELRY', 'JEWELRY'),
+    ('LUGGAGE', 'LUGGAGE'),
+    ('MAJOR APPLIANCES', 'MAJOR APPLIANCES'),
+    ('MIXED LOTS', 'MIXED LOTS'),
+    ('RUGS', 'RUGS'),
+    ('SEASONAL', 'SEASONAL'),
+    ('SPORTING GOODS', 'SPORTING GOODS'),
+    ('TOOLS', 'TOOLS'),
+    ('TOYS', 'TOYS'),
+    ('TVS', 'TVS'),
+    ('VACUUMS', 'VACUUMS'),
 ]
 EMAIL_PREFERENCES_LIST = [
-    ('All Emails','All Emails'),
-    ('No Emails','No Emails'),
+    ('All Emails', 'All Emails'),
+    ('No Emails', 'No Emails'),
 ]
 
 DEPARTMENT_LIST = [
-    ('Checkout','Checkout'),
-    ('Expensive Items','ExpensiveItems'),
-    ('General Items','GeneralItems'),
-    ('Inventory','Inventory'),
-    ('Kids Apparel','KidsApparel'),
-    ('Large Items','LargeItems'),
-    ('Processing','Processing'),
+    ('Checkout', 'Checkout'),
+    ('ExpensiveItems', 'Expensive Items'),
+    ('GeneralItems', 'General Items'),
+    ('Inventory', 'Inventory'),
+    ('KidsApparel', 'Kids Apparel'),
+    ('LargeItems', 'Large Items'),
+    ('Processing', 'Processing'),
 ]
 
 PID_LIST = [
-    ('Drivers Liscense','DriversLiscense'),
-    ('Passport','Passport'),
-    ('Student ID','StudentID'),
+    ('DriversLiscense', 'Drivers Liscense'),
+    ('Passport', 'Passport'),
+    ('StudentID', 'Student ID'),
 
 ]
 
 CONDITION_LIST = [
-    ('New - Brand New','BrandNew'),    
-    ('New - Excellent','NewExcellent'),
-    ('New - Very Good','NewVeryGood'),
-    ('New - Good','NewGood'),
-    ('New - Acceptable','NewAcceptable'),
-    ('New - Poor','NewPoor'),
-    ('New - Salvage','NewSalvage'),
-    ('Used - Excellent','UsedExcellent'),
-    ('Used - Very Good','UsedVeryGood'),
-    ('Used - Good','UsedGood'),
-    ('Used - Acceptable','UsedAcceptable'),
-    ('Used - Poor','UsedPoor'),
-    ('Used - Salvage','UsedSalvage'),
-    ('Reject - Condition','Condition'),
-    ('Reject - Dirty','Dirty'),
-    ('Reject - MissingParts','MissingParts'),
-    ('Reject - Violation','Violation')
+    ('BrandNew', 'New - Brand New'),
+    ('NewExcellent', 'New - Excellent'),
+    ('NewVeryGood', 'New - Very Good'),
+    ('NewGood', 'New - Good'),
+    ('NewAcceptable', 'New - Acceptable'),
+    ('NewPoor', 'New - Poor'),
+    ('NewSalvage', 'New - Salvage'),
+    ('UsedExcellent', 'Used - Excellent'),
+    ('UsedVeryGood', 'Used - Very Good'),
+    ('UsedGood', 'Used - Good'),
+    ('UsedAcceptable', 'Used - Acceptable'),
+    ('UsedPoor', 'Used - Poor'),
+    ('UsedSalvage', 'Used - Salvage'),
+    ('Condition', 'Reject - Condition'),
+    ('Dirty', 'Reject - Dirty'),
+    ('MissingParts', 'Reject - MissingParts'),
+    ('Violation', 'Reject - Violation')
 ]
 
 TESTED_LIST = [
-    ('Not Tested','NotTested'),    
-    ('Tested - Works Perfect','WorksPerfect'),
-    ('Tested - Works Okay','WorksOk'),
-    ('Tested - Works Some Damage','SomeDamage'),
-    ('Tested - Works Heavy Damage','HeavyDamage'),
-    ('Tested - Repairable Light','RepairableLight'),
-    ('Tested - Repairable Heavy','RepairableHeavy'),
-    ('Tested - Salvage','Salvage')
+    ('NotTested', 'Not Tested'),
+    ('WorksPerfect', 'Tested - Works Perfect'),
+    ('WorksOk', 'Tested - Works Okay'),
+    ('SomeDamage', 'Tested - Works Some Damage'),
+    ('HeavyDamage', 'Tested - Works Heavy Damage'),
+    ('RepairableLight', 'Tested - Repairable Light'),
+    ('RepairableHeavy', 'Tested - Repairable Heavy'),
+    ('Salvage', 'Tested - Salvage'),
 ]
 
-STATUS_CHANGE_LIST = [
-    ('Lost','Lost'),
-    ('Stolen','Stolen'),
-    ('Broken - Kept','BrokenKept'),
-    ('Broken - Recycled','BrokenRecycled'),
-    ('Broken - Disposed','BrokenDisposed'),
-    ('Broken - Free','BrokenFree'),
-    ('Removed - Donation','RemovedDonation'),
-    ('Removed - Violation','RemovedViolation'),
-    ('Removed - Returned','RemovedReturned'),
-    ('Removed - Moved','RemovedMoved')
+STATUS_CHANGE_LIST = [    
+    ('CheckedIn', 'Checked-In'),
+    ('Delivered', 'Delivered'),    
+    ('Undelivered', 'Undelivered'),
+    ('Unfulfilled', 'Unfulfilled'),
+    ('Lost', 'Lost'),
+    ('Stolen', 'Stolen'),
+    ('BrokenKept', 'Broken - Kept'),
+    ('BrokenRecycled', 'Broken - Recycled'),
+    ('BrokenDisposed', 'Broken - Disposed'),
+    ('BrokenFree', 'Broken - Free'),
+    ('RemovedDonation', 'Removed - Donation'),
+    ('RemovedViolation', 'Removed - Violation'),
+    ('RemovedReturned', 'Removed - Returned'),
+    ('RemovedMoved', 'Removed - Moved'),
+]
+
+ADD_ITEM_OPTIONS_LIST = [    
+    ('NotCheckedIn', 'Not Checked In'),
+    ('RecentlyAdded', 'Recently Added'),    
+    ('RecentlySold', 'Recently Sold'),
+    ('BackstockQuantity', 'Backstock Quantity'),
 ]
 
 ST_LIST = [('AL','AL'),('AK','AK'),('AZ','AZ'),('AR','AR'),('CA','CA'),('CO','CO'),('CT','CT'),('DE','DE'),('FL','FL'),('GA','GA'),('HI','HI'),('ID','ID'),('IL','IL'),('IN','IN'),('IA','IA'),('KS','KS'),('KY','KY'),('LA','LA'),('ME','ME'),('MD','MD'),('MA','MA'),('MI','MI'),('MN','MN'),('MS','MS'),('MO','MO'),('MT','MT'),('NE','NE'),('NV','NV'),('NH','NH'),('NJ','NJ'),('NM','NM'),('NY','NY'),('NC','NC'),('ND','ND'),('OH','OH'),('OK','OK'),('OR','OR'),('PA','PA'),('RI','RI'),('SC','SC'),('SD','SD'),('TN','TN'),('TX','TX'),('UT','UT'),('VT','VT'),('VA','VA'),('WA','WA'),('WV','WV'),('WI','WI'),('WY','WY')]
 STATE_LIST = [('Alabama','Alabama'),('Alaska','Alaska'),('Arizona','Arizona'),('Arkansas','Arkansas'),('California','California'),('Colorado','Colorado'),('Connecticut','Connecticut'),('Delaware','Delaware'),('Florida','Florida'),('Georgia','Georgia'),('Hawaii','Hawaii'),('Idaho','Idaho'),('Illinois','Illinois'),('Indiana','Indiana'),('Iowa','Iowa'),('Kansas','Kansas'),('Kentucky','Kentucky'),('Louisiana','Louisiana'),('Maine','Maine'),('Maryland','Maryland'),('Massachusetts','Massachusetts'),('Michigan','Michigan'),('Minnesota','Minnesota'),('Mississippi','Mississippi'),('Missouri','Missouri'),('Montana','Montana'),('Nebraska','Nebraska'),('Nevada','Nevada'),('New Hampshire','New Hampshire'),('New Jersey','New Jersey'),('New Mexico','New Mexico'),('New York','New York'),('North Carolina','North Carolina'),('North Dakota','North Dakota'),('Ohio','Ohio'),('Oklahoma','Oklahoma'),('Oregon','Oregon'),('Pennsylvania','Pennsylvania'),('Rhode Island','Rhode Island'),('South Carolina','South Carolina'),('South Dakota','South Dakota'),('Tennessee','Tennessee'),('Texas','Texas'),('Utah','Utah'),('Vermont','Vermont'),('Virginia','Virginia'),('Washington','Washington'),('West Virginia','West Virginia'),('Wisconsin','Wisconsin'),('Wyoming','Wyoming')]
+
+##################################################################################################################
+# Liquidation - Manifests
+
+##################################################################################################################
+
+MANIFEST_HEADING_FIELDS = [
+    ('Amazon 1', {'item description' : 'description', 'gl description' : 'department', 'product class' : 'item_class', 'category' : 'category', 'subcategory' : 'subcategory', 'qty' : 'units', 'unit retail' : 'unit_retail', 'asin' : '', 'ext. retail' : '', 'inventory reference id' : '', 'shipmentid' : '', 'shipmentitemid' : '', 'shipped qty' : '', 'unfulfilled qty' : '', 'upc' : ''}),
+    ('B-Stock 1', {'item description' : 'description', 'manufacturer' : 'brand', 'model' : 'model', 'qty' : 'units', 'retail per unit' : 'unit_retail', 'carrier' : '', 'expiration date' : '', 'memory' : '', 'total retail' : '', 'upc' : ''}),
+    ('Costco 1', {'item description' : 'description', 'department' : 'department', 'category' : 'category', 'brand' : 'brand', 'qty' : 'units', 'unit retail' : 'unit_retail', 'category code' : '', 'dept. code' : '', 'ext. retail' : '', 'item #' : '', 'lot #' : ''}),
+    ('Home Depot 1', {'item description' : 'description', 'department' : 'department', 'product class' : 'item_class', 'category' : 'category', 'subcategory' : 'subcategory', 'brand' : 'brand', 'model' : 'model', 'qty' : 'units', 'unit retail' : 'unit_retail', 'ext. retail' : '', 'order #' : '', 'sb #' : '', 'sku' : '', 'upc' : ''}),
+    ('Target 1', {'item description' : 'description', 'department' : 'department', 'product class' : 'item_class', 'category' : 'category', 'subcategory' : 'subcategory', 'brand' : 'brand', 'qty' : 'units', 'retail' : 'unit_retail', 'item' : '', 'ext. retail' : '', 'pallet id' : '', 'upc' : ''}),
+    ('Target 2', {'item description' : 'description', 'sep cat' : 'department', 'product type' : 'item_class', 'category' : 'category', 'item model' : 'model', 'qty' : 'units', 'retail' : 'unit_retail', 'cat.' : '', 'cat. desc.' : '', 'container type' : '', 'ext. retail' : '', 'item' : '', 'item dep id' : '', 'origin' : '', 'pallet' : '', 'warehouse code' : ''}),
+    ('Walmart 1', {'item description' : 'description', 'department' : 'department', 'subcategory' : 'category', 'model' : 'model', 'qty' : 'units', 'unit retail' : 'unit_retail', 'upc' : '', 'ext. retail' : '', 'unit weight' : '', 'pallet id' : '', 'pallet name' : '', 'pallet type' : ''})
+]
+
+def GET_MANIFEST_FIELDS(field_list):
+    heading_fields, match_cnt, match_pct, heading_template = {}, 0, 0, ''
+    for _d, h in MANIFEST_HEADING_FIELDS:
+        _match_cnt = len([1 for f in field_list if f.lower() in h.keys()])
+        _match_pct = _match_cnt / len(h.keys())
+        replace = _match_cnt > match_cnt
+        if _match_cnt == match_cnt: replace = _match_pct > match_pct
+        if replace:
+            heading_fields, match_cnt, match_pct, heading_template = h, _match_cnt, _match_pct, _d
+    
+    return heading_template, DICT_REMOVE_EMPTY(heading_fields)
 
 ##################################################################################################################
 # Google Storage Directories

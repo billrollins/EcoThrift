@@ -1,7 +1,6 @@
 from .models import *
 
 class BasicForm(ModelForm):
-  __dict__ = {}
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     for form_field in FORM_DESIGN[type(self).__name__]['Fields']:
@@ -9,12 +8,11 @@ class BasicForm(ModelForm):
       if form_field['Template']: widget.template_name = form_field['Template']
       if form_field['Class']: widget.attrs['class'] = form_field['Class']
       if form_field['Type']: widget.input_type = form_field['Type']
-    self.set_dict()
     return
-  def set_dict(self):
-    self.__dict__ = self.fields
-    self.__dict__.update({'pk':self.instance.pk})
-    return
+  def get_dict(self):
+    _dict = self.fields
+    _dict['pk'] = self.instance.pk
+    return _dict
 
 
 
@@ -62,11 +60,6 @@ class OrderForm(BasicForm):
       model = Order
       fields = ['order_number', 'purchase_date', 'liquidator', 'category', 'item_count', 'pallet_count', 'sale_amount', 'shipping_amount', 'delivery_date', 'accepted_by', 'unloaded_by', 'pod_image', 'manifest_file']
 
-class ItemForm(BasicForm):
-    class Meta:
-      model = Item
-      fields = ['employee', 'order', 'dropoff', 'created_date', 'zero_date', 'change_date', 'section', 'description', 'brand', 'condition', 'tested', 'tags', 'price_code', 'static_price', 'expected_price', 'status_change']
-
 class UserForm(BasicForm):
     class Meta:
       model = User
@@ -85,9 +78,23 @@ class ConsignorForm(BasicForm):
 class EmployeeForm(BasicForm):
     class Meta:
       model = Employee
-      fields = ['address', 'address2', 'city', 'state', 'zip', 'phone', 'date_of_birth', 'ice1_fname', 'ice1_lname', 'ice1_phone', 'ice1_relationship', 'ice2_fname', 'ice2_lname', 'ice2_phone', 'ice2_relationship', 'title', 'hourly_rate', 'start_date', 'end_date', 'exit_reason', 'image']	
+      fields = ['address', 'address2', 'city', 'state', 'zip', 'phone', 'date_of_birth', 'ice1_fname', 'ice1_lname', 'ice1_phone', 'ice1_relationship', 'ice2_fname', 'ice2_lname', 'ice2_phone', 'ice2_relationship', 'title', 'hourly_rate', 'start_date', 'end_date', 'exit_reason', 'image']
 
-def FORMS(request, form_name, instance=None):
+class ProcessOrderForm(BasicForm):
+    class Meta:
+      model = Item
+      fields = ['department', 'item_class', 'category', 'subcategory', 'brand', 'model', 'description', 'condition', 'status', 'units', 'unit_retail']
+
+class CheckInOrderForm(BasicForm):
+    class Meta:
+      model = Item
+      fields = ['location', 'description', 'brand', 'model', 'condition', 'static_price', 'starting_price', 'expected_price', 'image']	
+
+#############################################################
+# Paste Form Code Above this line
+#############################################################	
+
+def FORMS(request, form_name, instance=None, get_cur_data=False):
   if TYPE(form_name) != 'Form': 
     return None
   form_class = globals()[form_name]
@@ -106,19 +113,20 @@ def FORMS(request, form_name, instance=None):
     else:
       pk = request.GET['pk'] if 'pk' in request.GET else request.POST['pk']
       instance = model_class.objects.get(pk=pk)    
-    if request.method == 'GET': 
+    if request.method == 'GET' or get_cur_data: 
       return form_class(instance=instance)      
     return form_class(data=request.POST, files=request.FILES, instance=instance)
 
   # If not instance
   if request.method == 'GET':
     return form_class()
-  return form_class(data=request.POST, files=request.FILES)
+  thisform = form_class(data=request.POST, files=request.FILES)
+  return thisform
 
 def META_FORMS(meta_form_name, request):
     meta_forms = []
 
-    for f in SITE_DESIGN['MetaForm']:             
+    for f in META_FORM_DESIGN:             
         if f['MetaForm'] == meta_form_name:
             dct = {}
             dct.update(f)

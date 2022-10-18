@@ -48,11 +48,16 @@ urlpatterns = [
     path('ViewStores', views.pages, name='ViewStores'),
 
     # Advanced Pages
-    path('AddOrderItems', views.pages, name='AddOrderItems'),
+    path('ProcessOrder', views.pages, name='ProcessOrder'),
+    path('CheckInOrder', views.pages, name='CheckInOrder'),
 
     # Ajax Calls
     path('Delete', views.delete, name='delete'),
-    path('ProcessManifest', views.delete, name='process_manifest'),    
-    path('get_store_input', views.get_store_input, name='get_store_input'),
+    path('ProcessManifest', views.process_manifest, name='process_manifest'),    
+    path('AjxFormData', views.AjxFormData, name='AjxFormData'),
+    path('AjxTableData', views.AjxTableData, name='AjxTableData'),
+    path('AjxCheckIn', views.AjxCheckIn, name='AjxCheckIn'),
+    path('save_form_data', views.save_form_data, name='save_form_data'),
+    path('AjxProcOrderAgg', views.AjxProcOrderAgg, name='AjxProcOrderAgg'),
 ]
     

@@ -11,46 +11,50 @@
     Eco-Thrift - {% block title %}{% endblock %}
   </title>
 
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+  
+  <!-- HTML2Canvas -->
+  <script src="/static/assets/js/plugins/html2canvas.js"></script>
+
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+
   <!-- Nucleo Icons -->
   <link href="/static/assets/css/nucleo-icons.css" rel="stylesheet" />
   <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
+
   <!-- Font Awesome Icons -->
   <script src="https://kit.fontawesome.com/7a5bd9a427.js" crossorigin="anonymous"></script>
   <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
+
   <!-- CSS Files -->
   <link id="pagestyle" href="/static/assets/css/soft-ui-dashboard.css?v=1.0.5" rel="stylesheet" />
+
+   
 
   <!-- Specific CSS goes HERE -->
   {% block stylesheets %}
   {% endblock stylesheets %}  
-  <style> 
-    .dataTable-sorter::before,
-    .dataTable-sorter::after {
-      border-left: none;
-      border-right: none;
-    }
-    .table thead th {
-      padding: .5rem;
-    }
+  <style>
+    .dataTable-sorter::before,.dataTable-sorter::after {border-left: none;border-right: none;}  
   </style>
 
   {% block showmodals %}
-
   {% endblock showmodals %}
 
 </head>
 
 <!--  Including my custom filters -->
 {% load custom_tags %}
+
+{% include "includes/navigation.html" %}
+
 <body class="{% block body_class %}g-sidenav-show bg-gray-100{% endblock %}">
 
   {% include "includes/sidebar.html" %}
 
   <main class="main-content max-height-vh-100 h-100">
-
-    {% include "includes/navigation.html" %}
 
     {% block content %}{% endblock content %}
 
@@ -63,30 +67,16 @@
   {% include "includes/scripts.html" %}
 
   <!-- Java Scripts -->
+    
+    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+    <script src="/static/assets/js/soft-ui-dashboard.js?v=1.0.5"></script>
 
-    <!-- jquery -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <!-- Page JS -->
+    {% block javascripts %}
+    {% endblock javascripts %}
 
-  <script>
-    var win = navigator.platform.indexOf('Win') > -1;
-    if (win && document.querySelector('#sidenav-scrollbar')) {
-      var options = {
-        damping: '0.5'
-      }
-      Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
-    }
-  </script>
-
-  <!-- Github buttons -->
-  <script async defer src="https://buttons.github.io/buttons.js"></script>
-  
-  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="/static/assets/js/soft-ui-dashboard.min.js?v=1.0.5"></script>
-
-  {% block javascripts %}{% endblock javascripts %}
-
-
-  {{ Notifications | _NotificationJS }}
+    <!-- JS for notifications -->
+    {{ Notifications | _NotificationJS }}
   
 </body>
 </html>

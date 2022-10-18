@@ -1,0 +1,156 @@
+<!-- Layout --> 
+{% extends 'layouts/base.html' %}
+
+<!-- Tags --> 
+{% load custom_tags %}
+
+<!-- Custom Title --> 
+{% block title %}{{ PageDesign.Title }}{% endblock title %}
+
+<!-- Custom Content --> 
+{% block content %}
+<div class="container py-4">
+
+    <!-- Page Headings -->
+    <div class="row">
+        <div class="col-12">
+            <h3 class="mt-5 text-center">{{ PageDesign.Heading|_Format:Context }}</h3>
+            <h5 class="text-secondary text-center">
+                Click here to <a href="/ViewOrders" class="text-primary">View Orders</a>
+            </h5>
+            <h5 class="text-secondary text-center">
+                <a href="/EditOrder?pk={{Order.pk}}" class="text-primary">Edit</a>,
+                <a href="/ProcessOrder?pk={{Order.pk}}" class="text-primary">Process</a>,
+                <a href="/CheckInOrder?pk={{Order.pk}}" class="text-primary">Check-In</a> an Order
+            </h5>
+        </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card m-4">
+        <!-- Card Heading and Add Button -->
+        <div class="card-header">
+            <div class="row">
+        
+                <!-- Heading -->
+                <div class="col-6">
+                    <h5 class="m-2">Item Form</h5>
+                    <p class="m-2">Add items here or edit by clicking the table below</p>
+                </div>
+        
+            </div>
+        </div>
+
+        <!-- Card Body Form --> 
+        <div class="row"><div class="col-12">
+            <div class="card-body">
+                <form action="" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Form Content -->
+                    <div id="form-content">Loading form data</div>                    
+                    
+                    <!-- Form Buttons -->
+                    <div class="button-row mt-4" style="text-align: right;">
+                        <!-- Submit Button -->
+                        <button class="btn px-2 mx-2" type="button" onclick="Ajx_CheckIn(true);return false;">
+                            <span class="btn-inner--icon"><i class = "fa fa-pen text-info" ></i></span>                        
+                            <span class="btn-inner--text mx-1">Check In (Label)</span>
+                        </button>
+                        <!-- Submit Button -->
+                        <button class="btn px-2 mx-2" type="button" onclick="Ajx_CheckIn(false);return false;">
+                            <span class="btn-inner--icon"><i class = "fa fa-pen text-info" ></i></span>                        
+                            <span class="btn-inner--text mx-1">Check In (No Label)</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div></div>
+    </div>
+    
+    <!-- Table Card--> 
+
+    <div class="card m-4">
+
+        <!-- Card Heading and Add Button -->
+        <div class="card-header">
+            <div class="row">
+                <!-- Heading -->
+                <div class="col-6">
+                    <h5 class="m-2">Items from order: {{ Order.order_number}}</h5>
+                </div> 
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div id="table-content">Loading table data</div>
+            <input type="hidden" name="order_pk" value="{{ Order.pk }}">
+            <input type="hidden" name="employee_pk" value="{{ Employee.pk }}">
+            <input type="hidden" name="item_pk" value="">
+            <input type="hidden" name="today" value="{{ Today }}">
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+<!-- Custom JavaScript -->
+{% block javascripts %}
+
+<script src="/static/assets/js/plugins/datatables.js"></script>
+
+{% csrf_token %}
+<script type="text/javascript">
+    function Ajx_GetForm(item_id) {
+        $.ajax({
+            type: 'POST',
+            url: '/AjxFormData',
+            data: {            
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                'pk': item_id,
+                'FormName': 'CheckInOrderForm'
+            },
+            success: function (data) {                    
+                var form_content = $('div#form-content')[0];
+                form_content.innerHTML = data['form_data'];
+                var item_pk = $('input[name=item_pk]')[0];
+                item_pk.value = item_id;
+            }
+        });
+    };
+    function Ajx_GetTable(str) {
+        $.ajax({
+            type: 'POST',
+            url: '/AjxTableData',
+            data: {            
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                'pk': $("input[name=order_pk]").val(),
+                'TableName': 'CheckInOrderTable'
+            },
+            success: function (data) {                    
+                var table_content = $('div#table-content')[0];
+                table_content.innerHTML = data['table_data'];
+                const dataTableBasic = new simpleDatatables.DataTable("#datatable-basic", {searchable: true,fixedHeight: true});
+            }
+        });
+    };
+    function Ajx_CheckIn(print_label) {
+        $.ajax({
+            type: 'POST',
+            url: '/AjxCheckIn',
+            data: {            
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                'order_pk': $("input[name=order_pk]").val(),
+                'item_pk': $('input[name=item_pk]').val(),
+                'print_lable': print_label,
+            },
+            success: function (data) {
+                Ajx_GetForm("");
+                Ajx_GetTable("");
+            }
+        });
+    };
+    Ajx_GetForm("");
+    Ajx_GetTable("");
+</script>
+
+{% endblock javascripts %}
