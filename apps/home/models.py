@@ -113,7 +113,7 @@ class Location(Model):
     section = models.ForeignKey(Section, on_delete=models.SET_NULL, blank=True, default=None, null=True)
     label = models.CharField(max_length=5, blank=True, default='', null=False)
     def __str__(self):
-        return f'{self.section if self.section else ""} : {self.label}'
+        return f'{self.label}: {self.section}'
 
 class Position(Model):
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, blank=True, default=None, null=True)

@@ -11,7 +11,7 @@ urlpatterns = [
 
     #Basic Pages
 
-    path('', views.pages, name=''),
+    path('', views.index, name='Home'),
     path('Dashboard', views.pages, name='Dashboard'),
     path('MyProfile', views.pages, name='MyProfile'),
 
@@ -53,7 +53,7 @@ urlpatterns = [
 
     # Ajax Calls
     path('Delete', views.delete, name='delete'),
-    path('ProcessManifest', views.process_manifest, name='process_manifest'),    
+    path('ProcessManifest', views.process_manifest, name='process_manifest'),
     path('AjxFormData', views.AjxFormData, name='AjxFormData'),
     path('AjxTableData', views.AjxTableData, name='AjxTableData'),
     path('AjxCheckIn', views.AjxCheckIn, name='AjxCheckIn'),

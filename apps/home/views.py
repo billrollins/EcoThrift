@@ -5,6 +5,11 @@ from .html_elements import *
 # General Pages, Processing
 ##################################################################################################################
 
+def index(request):
+    template = loader.get_template('home/index.html')
+    return HttpResponse(template.render({}, request))
+
+
 def get_context(request):
     _context = {
         'request':          request,
