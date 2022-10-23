@@ -24,56 +24,14 @@
                 <a href="/CheckInOrder?pk={{Order.pk}}" class="text-primary">Check-In</a> an Order
             </h5>
             <h5 class="text-secondary text-center">
-                or <a href="#" onclick="Ajx_ProcessManifest();return false;" class="text-primary">Add Manifest Items</a>
+                or <a href="#" onclick="Ajx_ProcManifest();return false;" class="text-primary">Add Manifest Items</a>
             </h5>
         </div>
     </div>
 
     <!-- Form Card -->
-    <div class="card m-4">
-        <!-- Card Heading and Add Button -->
-        <div class="card-header">
-            <div class="row">
-        
-                <!-- Heading -->
-                <div class="col-6">
-                    <h5 class="m-2">Item Form</h5>
-                    <p class="m-2">Add items here or edit by clicking the table below</p>
-                </div>
-        
-                <!-- Add Button -->
-                <div class="col-6">
-                    <div class="button-row m-2" style="text-align: right;">
-                        <button class="btn p-2 m-0" type="button" onclick="Ajx_SaveNewForm('');return false;">
-                            <span class="btn-inner--icon"><i class="far fa-square-plus text-success"></i></span>
-                            <span class="btn-inner--text mx-1">Add Item</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card Body Form --> 
-        <div class="row"><div class="col-12">
-            <div class="card-body">
-                <form action="" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-
-                    <!-- Form Content -->
-                    <div id="form-content">Loading form data</div>
-                    
-                    
-                    <!-- Form Buttons -->
-                    <div class="button-row mt-4" style="text-align: right;">
-                        <!-- Submit Button -->
-                        <button class="btn px-2 mx-2" type="button" onclick="Ajx_SaveNewForm('pk');return false;">
-                            <span class="btn-inner--icon"><i class = "fa fa-pen text-info" ></i></span>                        
-                            <span class="btn-inner--text mx-1">Update Item</span>
-                        </button>                    
-                    </div>
-                </form>
-            </div>
-        </div></div>
+    <div class="card m-4" id="form-content">
+        {{ form_html }}
     </div>
     
     <!-- Table Card--> 
@@ -86,7 +44,7 @@
                 <!-- Heading -->
                 <div class="col-6">
                     <h5 class="m-2">Items from order: {{ Order.order_number}}</h5>
-                </div>                
+                </div>
                 <!-- Buttons -->
                 <div class="col-6">
                     <div class="button-row m-2" style="text-align: right;">
@@ -116,14 +74,13 @@
 {% block javascripts %}
 <script src="/static/assets/js/plugins/datatables.js"></script>
 
-{% csrf_token %}
+<!-- Ajax JavaScript -->
 <script type="text/javascript">
-
-function Ajx_SaveNewForm(pk) {
+function Ajx_SaveForm(pk) {
     console.log(pk);
     $.ajax({
         type: 'POST',
-        url: '/save_form_data',
+        url: '/AjxSaveForm',
         data: {
             'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
             'FormName': 'ProcessOrderForm',
@@ -213,7 +170,7 @@ function Ajx_DeleteItem(item_pk) {
     console.log(item_pk);
     $.ajax({
         type: 'POST',
-        url: '/Delete',
+        url: '/AjxDeleteItem',
         data: {            
             'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
             'del_str': 'Item:' + item_pk,            
@@ -224,10 +181,11 @@ function Ajx_DeleteItem(item_pk) {
         }
     });
 };
-function Ajx_ProcessManifest() {
+function Ajx_ProcManifest
+() {
     $.ajax({
         type: 'POST',
-        url: '/ProcessManifest',
+        url: '/AjxProcManifest',
         data: {            
             'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
             'order_id': $("input[name=order_pk]").val(),            
@@ -240,8 +198,60 @@ function Ajx_ProcessManifest() {
     });
 };
 
-Ajx_GetForm("");
 Ajx_GetTable("");
+</script>
+<!-- Alerts -->
+<script src="/static/assets/js/plugins/sweetalert.min.js"></script>
+
+
+<!-- Ajax Functions -->
+<script type="text/javascript">
+    function Ajx_GetFormHTML(form_name) {
+        $.ajax({
+            type: 'POST',
+            url: '/AjxGetFormHTML',
+            data: {
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                'form_name': form_name,
+            },
+            success: function (data) {                    
+                var form_content = $('div#' + form_name)[0];
+                form_content.innerHTML = data['form_data'];
+            }
+        });
+    };
+
+    function Ajx_SaveForm2(form_name) {
+      var form_content = $('#'+form_name)[0];
+      var fd = new FormData(form_content);
+      fd.append( 'csrfmiddlewaretoken', $("input[name=csrfmiddlewaretoken]").val() );
+      fd.append( 'form_name', form_name);
+
+      $.ajax({
+          type: 'POST',
+          url: '/AjxSaveForm2',
+          data: fd,
+          processData: false,
+          contentType: false,
+          success: function (data) {
+              if (data['result'] == 'fail'){
+                Swal.fire(
+                  'Bad job!',
+                  'Form Errors',
+                  'warning'
+                )
+              } else {
+                Swal.fire(
+                  'Good job!',
+                  'Form Saved!',
+                  'success'
+                )
+              }
+              form_content.innerHTML = data['form_data'];
+          }
+      });
+    };
+
 </script>
 
 {% endblock javascripts %}

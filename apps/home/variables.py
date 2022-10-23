@@ -22,6 +22,9 @@ from phonenumber_field.modelfields import PhoneNumberField
 from uuid import uuid4
 import re
 
+from ..custom.forms import EcoForm
+from ..custom.forms import EcoDateField, EcoEmailField, EcoFormField, EcoNumberField, EcoPasswordField, EcoTimeField
+
 ##################################################################################################################
 # Directories and Files
 ##################################################################################################################
@@ -54,6 +57,35 @@ ET_COLORS = {
 DEFAULT_END_DATE = date(9999,12,31)
 DEFAULT_START_DATE = date(1,1,1)
 STATE_DICT = {'AL':'Alabama', 'AK':'Alaska', 'AZ':'Arizona', 'AR':'Arkansas', 'CA':'California', 'CO':'Colorado', 'CT':'Connecticut', 'DE':'Delaware', 'FL':'Florida', 'GA':'Georgia', 'HI':'Hawaii', 'ID':'Idaho', 'IL':'Illinois', 'IN':'Indiana', 'IA':'Iowa', 'KS':'Kansas', 'KY':'Kentucky', 'LA':'Louisiana', 'ME':'Maine', 'MD':'Maryland', 'MA':'Massachusetts', 'MI':'Michigan', 'MN':'Minnesota', 'MS':'Mississippi', 'MO':'Missouri', 'MT':'Montana', 'NE':'Nebraska', 'NV':'Nevada', 'NH':'New Hampshire', 'NJ':'New Jersey', 'NM':'New Mexico', 'NY':'New York', 'NC':'North Carolina', 'ND':'North Dakota', 'OH':'Ohio', 'OK':'Oklahoma', 'OR':'Oregon', 'PA':'Pennsylvania', 'RI':'Rhode Island', 'SC':'South Carolina', 'SD':'South Dakota', 'TN':'Tennessee', 'TX':'Texas', 'UT':'Utah', 'VT':'Vermont', 'VA':'Virginia', 'WA':'Washington', 'WV':'West Virginia', 'WI':'Wisconsin', 'WY':'Wyoming'}
+
+##################################################################################################################
+# Icons
+##################################################################################################################
+
+def ILIGHT(icon):
+    return icon.replace('fa-regular', 'fa-light')
+
+def ISOLID(icon):
+    return icon.replace('fa-regular', 'fa-solid')
+
+# Graphics
+ICON_TRASH = 'fa-regular fa-trash'
+ICON_CLOCK = 'fa-regular fa-clock'
+ICON_COUCH = 'fa-regular fa-couch'
+ICON_BUS_TIME = 'fa-regular fa-business-time'
+ICON_CHESS = 'fa-regular fa-chess'
+ICON_DATABASE = 'fa-regular fa-database'
+
+# Geometric
+ICON_SQR_MINUS = 'fa-regular fa-square-minus'
+ICON_SQR_PLUS = 'fa-regular fa-square-plus'
+
+# Characters
+ICON_CHECK = 'fa-solid fa-check'
+ICON_MINUS = 'fa-solid fa-minus'
+ICON_PLUS = 'fa-solid fa-plus'
+ICON_EXCLAMATION = 'fa-solid fa-exclamation'\
+
 
 ##################################################################################################################
 # Key/Value Functions
@@ -179,6 +211,13 @@ def FORMAT(str, obj):
 def DICT_REMOVE_EMPTY(dict):
     for k in [k for k, v in dict.items() if not v]: del dict[k] 
     return dict
+
+def DICTS_FORMAT(str, dicts, cycles=3):
+    for z in range(cycles):
+        for dict_name, dict_kvs in dicts.items():        
+            for k,v in dict_kvs.items(): 
+                str = str.replace(f'{dict_name}[{k}]', f'{v}')
+    return str
 
 
 ##################################################################################################################
@@ -423,6 +462,7 @@ ADD_ITEM_OPTIONS_LIST = [
 
 ST_LIST = [('AL','AL'),('AK','AK'),('AZ','AZ'),('AR','AR'),('CA','CA'),('CO','CO'),('CT','CT'),('DE','DE'),('FL','FL'),('GA','GA'),('HI','HI'),('ID','ID'),('IL','IL'),('IN','IN'),('IA','IA'),('KS','KS'),('KY','KY'),('LA','LA'),('ME','ME'),('MD','MD'),('MA','MA'),('MI','MI'),('MN','MN'),('MS','MS'),('MO','MO'),('MT','MT'),('NE','NE'),('NV','NV'),('NH','NH'),('NJ','NJ'),('NM','NM'),('NY','NY'),('NC','NC'),('ND','ND'),('OH','OH'),('OK','OK'),('OR','OR'),('PA','PA'),('RI','RI'),('SC','SC'),('SD','SD'),('TN','TN'),('TX','TX'),('UT','UT'),('VT','VT'),('VA','VA'),('WA','WA'),('WV','WV'),('WI','WI'),('WY','WY')]
 STATE_LIST = [('Alabama','Alabama'),('Alaska','Alaska'),('Arizona','Arizona'),('Arkansas','Arkansas'),('California','California'),('Colorado','Colorado'),('Connecticut','Connecticut'),('Delaware','Delaware'),('Florida','Florida'),('Georgia','Georgia'),('Hawaii','Hawaii'),('Idaho','Idaho'),('Illinois','Illinois'),('Indiana','Indiana'),('Iowa','Iowa'),('Kansas','Kansas'),('Kentucky','Kentucky'),('Louisiana','Louisiana'),('Maine','Maine'),('Maryland','Maryland'),('Massachusetts','Massachusetts'),('Michigan','Michigan'),('Minnesota','Minnesota'),('Mississippi','Mississippi'),('Missouri','Missouri'),('Montana','Montana'),('Nebraska','Nebraska'),('Nevada','Nevada'),('New Hampshire','New Hampshire'),('New Jersey','New Jersey'),('New Mexico','New Mexico'),('New York','New York'),('North Carolina','North Carolina'),('North Dakota','North Dakota'),('Ohio','Ohio'),('Oklahoma','Oklahoma'),('Oregon','Oregon'),('Pennsylvania','Pennsylvania'),('Rhode Island','Rhode Island'),('South Carolina','South Carolina'),('South Dakota','South Dakota'),('Tennessee','Tennessee'),('Texas','Texas'),('Utah','Utah'),('Vermont','Vermont'),('Virginia','Virginia'),('Washington','Washington'),('West Virginia','West Virginia'),('Wisconsin','Wisconsin'),('Wyoming','Wyoming')]
+
 
 ##################################################################################################################
 # Liquidation - Manifests

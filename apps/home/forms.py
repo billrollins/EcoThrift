@@ -1,3 +1,4 @@
+from apps.custom.forms import EcoTextChoiceField
 from .models import *
 
 class BasicForm(ModelForm):
@@ -83,12 +84,12 @@ class EmployeeForm(BasicForm):
 class ProcessOrderForm(BasicForm):
     class Meta:
       model = Item
-      fields = ['department', 'item_class', 'category', 'subcategory', 'brand', 'model', 'description', 'condition', 'status', 'units', 'unit_retail']
+      fields = ['department', 'item_class', 'category', 'subcategory', 'brand', 'model', 'description', 'condition', 'status', 'retail_amount']
 
 class CheckInOrderForm(BasicForm):
     class Meta:
       model = Item
-      fields = ['location', 'description', 'brand', 'model', 'condition', 'static_price', 'starting_price', 'expected_price', 'image']	
+      fields = ['location', 'description', 'brand', 'model', 'condition', 'static_price', 'expected_price', 'starting_price', 'image']	
 
 #############################################################
 # Paste Form Code Above this line
@@ -135,3 +136,37 @@ def META_FORMS(meta_form_name, request):
             dct.update({'FormDesign':FORM_DESIGN[f['Form']]})
             meta_forms.append(dct)    
     return meta_forms
+
+#############################################################
+# Custom Forms
+#############################################################
+
+FormSaveBtn = EcoForm.B_( label='Save', onclick="Ajx_SaveForm2('form_dict[name]')", icon=ICON_CHECK)
+FormSaveNewBtn = EcoForm.B_( label='Save', onclick="Ajx_SaveNewForm('form_dict[name]')", icon=ICON_PLUS)
+
+ProcessOrderForm = EcoForm(
+  name='ProcessOrderForm',
+  fields=[
+        EcoFormField(   'department' , label='Department'   , required = True , col_size = 3  , attrs={'maxlength': 100} ),
+        EcoFormField(   'item_class'       , label='Item Class'   , required = False, col_size = 3  , attrs={'maxlength': 100} ),
+        EcoFormField(   'category'         , label='Category'     , required = False, col_size = 3  , attrs={'maxlength': 100} ),
+        EcoFormField(   'subcategory'      , label='Subcategory'  , required = False, col_size = 3  , attrs={'maxlength': 100} ),
+        EcoFormField(   'brand'            , label='Brand'        , required = False, col_size = 3  , attrs={'maxlength': 100} ),
+        EcoFormField(   'model'            , label='Model'        , required = False, col_size = 3  , attrs={'maxlength': 100} ),
+        EcoFormField(   'description'      , label='Description'  , required = False, col_size = 6  , attrs={'maxlength': 100} ),
+        EcoFormField(   'status'           , label='Status'       , required = False, col_size = 3  , attrs={'maxlength': 50} ),
+        EcoNumberField( 'retail_amount'    , label='Retail Amount', required = False, col_size = 3  ),
+  ],
+  elements=[
+    (EcoForm.H_('Item Form', size=5, _class="m-2"), 0, 0),
+    (EcoForm.P_('Add items here or edit by clicking the table below', size=5, _class="m-2"), 0, 0),
+    (FormSaveNewBtn, 0, 2),
+    (FormSaveBtn, 1, 2),
+  ]
+)
+
+def GET_FORM(nm):
+  _form_dict = {
+    'ProcessOrderForm': ProcessOrderForm
+  }
+  return _form_dict[nm]

@@ -113,7 +113,7 @@ class Location(Model):
     section = models.ForeignKey(Section, on_delete=models.SET_NULL, blank=True, default=None, null=True)
     label = models.CharField(max_length=5, blank=True, default='', null=False)
     def __str__(self):
-        return f'{self.label}: {self.section}'
+        return f'{self.section if self.section else ""} : {self.label}'
 
 class Position(Model):
     department = models.ForeignKey(Department, on_delete=models.SET_NULL, blank=True, default=None, null=True)
@@ -157,8 +157,7 @@ class Item(Model):
     brand = models.CharField(max_length=100, blank=True, default='', null=False)
     condition = models.CharField(max_length=50, blank=True, default='', null=False, choices=CONDITION_LIST)
     model = models.CharField(max_length=100, blank=True, default='', null=False)
-    units = models.IntegerField(blank=True, default=0, null=False)
-    unit_retail = models.DecimalField(blank=True, default=None, null=True, max_digits=8, decimal_places=2)
+    retail_amount = models.DecimalField(blank=True, default=None, null=True, max_digits=8, decimal_places=2)
     department = models.CharField(max_length=100, blank=True, default='', null=False)
     item_class = models.CharField(max_length=100, blank=True, default='', null=False)
     category = models.CharField(max_length=100, blank=True, default='', null=False)
@@ -183,4 +182,29 @@ class Item(Model):
 
 def MODELS(class_name):
     return globals()[class_name]
+
+##################################################################################################################
+# DB Choice Lists
+##################################################################################################################
+
+
+STORE_CHOICES = [(o.pk, o.name) for o in Store.objects.all()]
+SECTION_CHOICES = [(o.pk, o.name) for o in Section.objects.all()]
+
+LOCATION_CHOICES = [(o.pk, o.label) for o in Location.objects.all()]
+
+DEPARTMENT_CHOICES = [(o.pk, o.name) for o in Department.objects.all()]
+POSITION_CHOICES = [(o.pk, o.name) for o in Position.objects.all()]
+
+ORDER_CHOICES = [(o.pk, f'#{o.order_number}') for o in Order.objects.all()]
+DROPOFF_CHOICES = [(o.pk, f'{o.id}|{o.comments[:50]}') for o in Dropoff.objects.all()]
+
+
+
+
+
+
+
+
+
 

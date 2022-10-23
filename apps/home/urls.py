@@ -52,12 +52,14 @@ urlpatterns = [
     path('CheckInOrder', views.pages, name='CheckInOrder'),
 
     # Ajax Calls
-    path('Delete', views.delete, name='delete'),
-    path('ProcessManifest', views.process_manifest, name='process_manifest'),
+    path('AjxDeleteItem', views.AjxDeleteItem, name='AjxDeleteItem'),
+    path('AjxProcManifest', views.AjxProcManifest, name='AjxProcManifest'),
     path('AjxFormData', views.AjxFormData, name='AjxFormData'),
     path('AjxTableData', views.AjxTableData, name='AjxTableData'),
     path('AjxCheckIn', views.AjxCheckIn, name='AjxCheckIn'),
-    path('save_form_data', views.save_form_data, name='save_form_data'),
+    path('AjxSaveForm', views.AjxSaveForm, name='AjxSaveForm'),
     path('AjxProcOrderAgg', views.AjxProcOrderAgg, name='AjxProcOrderAgg'),
+    path('AjxGetFormHTML', views.AjxGetFormHTML, name='AjxGetFormHTML'),
+    path('AjxSaveForm2', views.AjxSaveForm2, name='AjxSaveForm2'),
 ]
     

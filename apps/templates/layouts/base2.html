@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="apple-touch-icon" sizes="76x76" href="/static/assets/img/favicon.png">
+  <link rel="icon" type="image/png" href="/static/assets/img/favicon.png">
+
+  <title>
+    Eco-Thrift - {% block title %}{% endblock %}
+  </title>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.1.js" integrity="sha256-3zlB5s2uwoUzrXK3BT7AX3FyvojsraNFxCc2vC/7pNI=" crossorigin="anonymous"></script>
+  
+  <!-- HTML2Canvas -->
+  <script src="/static/assets/js/plugins/html2canvas.js"></script>
+
+  <!--     Fonts and icons     -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+
+  <!-- Nucleo Icons -->
+  <link href="/static/assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
+
+  <!-- Font Awesome Icons -->
+  <script src="https://kit.fontawesome.com/7a5bd9a427.js" crossorigin="anonymous"></script>
+  <link href="/static/assets/css/nucleo-svg.css" rel="stylesheet" />
+
+  <!-- CSS Files -->
+  <link id="pagestyle" href="/static/assets/css/soft-ui-dashboard.css?v=1.0.5" rel="stylesheet" />
+
+   
+
+  <!-- Specific CSS goes HERE -->
+  {% block stylesheets %}
+  {% endblock stylesheets %}  
+  <style>
+    .dataTable-sorter::before,.dataTable-sorter::after {border-left: none;border-right: none;}  
+  </style>
+
+  {% block showmodals %}
+  {% endblock showmodals %}
+
+</head>
+
+<!--  Including my custom filters -->
+{% load custom_tags %}
+
+{% include "includes/navigation.html" %}
+
+<body class="{% block body_class %}g-sidenav-show bg-gray-100{% endblock %}">
+
+  {% include "includes/sidebar.html" %}
+
+  <main class="main-content max-height-vh-100 h-100">
+
+    {% block content %}{% endblock content %}
+
+    <!--  Making notifications if there are any -->
+    {{ Notifications | _Notifications }}
+
+  </main>
+
+  <!-- csrf_token for Form Posts -->
+  {% csrf_token %}
+  
+  {% include "includes/scripts.html" %}  
+  
+  <!-- JS for notifications -->
+  {{ Notifications | _NotificationJS }}
+
+  <!-- Alerts -->
+  <script src="/static/assets/js/plugins/sweetalert.min.js"></script>
+
+  <!-- Ajax Functions -->
+  <script type="text/javascript">
+      function Ajx_GetFormHTML(form_name) {
+          $.ajax({
+              type: 'POST',
+              url: '/AjxGetFormHTML',
+              data: {
+                  'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                  'form_name': form_name,
+              },
+              success: function (data) {                    
+                  var form_content = $('div#' + form_name)[0];
+                  form_content.innerHTML = data['form_data'];
+              }
+          });
+      };
+
+function Ajx_SaveForm2(form_name) {
+  var form_content = $('#'+form_name)[0];
+  var fd = new FormData(form_content);
+  fd.append( 'csrfmiddlewaretoken', $("input[name=csrfmiddlewaretoken]").val() );
+  fd.append( 'form_name', form_name);
+
+  $.ajax({
+      type: 'POST',
+      url: '/AjxSaveForm2',
+      data: fd,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+          if (data['result'] == 'fail'){
+            Swal.fire(
+              'Bad job!',
+              'Form Errors',
+              'warning'
+            )
+          } else {
+            Swal.fire(
+              'Good job!',
+              'Form Saved!',
+              'success'
+            )
+          }
+          form_content.innerHTML = data['form_data'];
+      }
+  });
+};
+
+function Ajx_SaveNewForm(form_name) {
+  var form_content = $('#'+form_name)[0];
+  var fd = new FormData(form_content);
+  fd.append( 'csrfmiddlewaretoken', $("input[name=csrfmiddlewaretoken]").val() );
+  fd.append( 'form_name', form_name);
+
+  $.ajax({
+      type: 'POST',
+      url: '/AjxSaveForm2',
+      data: fd,
+      processData: false,
+      contentType: false,
+      success: function (data) {
+          if (data['result'] == 'fail'){
+            Swal.fire(
+              'Bad job!',
+              'Form Errors',
+              'warning'
+            )
+          } else {
+            Swal.fire(
+              'Good job!',
+              'Form Saved!',
+              'success'
+            )
+          }
+          form_content.innerHTML = data['form_data'];
+      }
+  });
+};
+
+  </script>
+    
+  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+  <script src="/static/assets/js/soft-ui-dashboard.js?v=1.0.5"></script>
+
+  <!-- Page JS -->
+  {% block javascripts %}
+
+  {% endblock javascripts %}
+
+
+</body>
+
+</html>

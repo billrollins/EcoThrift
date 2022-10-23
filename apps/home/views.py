@@ -9,10 +9,10 @@ def index(request):
     template = loader.get_template('home/index.html')
     return HttpResponse(template.render({}, request))
 
-
 def get_context(request):
     _context = {
         'request':          request,
+        'csrftoken':        request.COOKIES['csrftoken'],
         'user':             request.user,
         'Sidebar':          SIDEBAR,
         'Today':            STR_TODAY(),        
@@ -35,6 +35,13 @@ def pages(request):
         return advanced_page(context)
     return basic_page(context)
 
+def Dashboard(context):
+    _csrf_token = context['request'].COOKIES['csrftoken']
+    ClearForm('DashForm')
+    context['form_html'] = GetFormHTML(_csrf_token, 'DashForm')
+    template = loader.get_template('home/dashboard.html')
+    return HttpResponse(template.render(context, context['request']))
+
 def basic_page(context):
     if context['request'].method == 'POST': 
         return form_post(context, context['request'])
@@ -46,9 +53,9 @@ def advanced_page(context):
         context['pk'] = context['request'].GET['pk']
         context['Order'] = Order.objects.get(pk=context['pk'])
         context['OrderStr'] = str(context['Order'])
-        context['Form'] = FORMS(context['request'], 'OrderForm')
+        context['form_html'] = GetFormHTML(context['csrftoken'], 'ProcessOrderForm', clear=True)
         
-    elif context['PageName'] == 'CheckInOrder' :
+    elif context['PageName'] == 'CheckInOrder':
         context['pk'] = context['request'].GET['pk']
         context['Order'] = Order.objects.get(pk=context['pk'])
         context['OrderStr'] = str(context['Order'])
@@ -82,6 +89,28 @@ def form_post(context, request):
     add_notification(icon='warn', heading=msg_head, body=msg_body)
     return redirect(invalid_redirect)
 
+def GetFormHTML(csrf_token, form_name, clear=False):
+    if clear: ClearForm(form_name)
+    _form = GET_FORM(form_name)
+    _form_html = mark_safe(_form.get_html(csrf_token))
+    return _form_html
+
+def ClearForm(form_name): 
+    _form = GET_FORM(form_name)
+    _form.clear()
+    return
+
+def SaveForm(csrf_token, form_name, val_dict):
+    _form = GET_FORM(form_name)
+    if _form.is_valid(val_dict):
+        result = 'success'
+        ClearForm(form_name)
+    else:
+        result = 'fail'
+    _form_html = mark_safe(_form.get_html(csrf_token))
+    return result, _form_html
+
+
 ##################################################################################################################
 # @receivers
 ##################################################################################################################
@@ -110,7 +139,7 @@ def post_save_order(sender, instance, created, **kwargs):
 # Ajax Functions
 ##################################################################################################################
 
-def process_manifest(request):
+def AjxProcManifest(request):
     myOrder = Order.objects.get(pk=request.POST['order_id'])
     df = pd.read_csv(myOrder.manifest_file)
     df.columns = df.columns.str.lower()
@@ -137,7 +166,7 @@ def process_manifest(request):
 
     return JsonResponse({'response':add_str})
 
-def delete(request):
+def AjxDeleteItem(request):
     redirect=''
     if request.method == 'POST':
         if 'RedirectValid' in request.POST:
@@ -154,6 +183,13 @@ def delete(request):
         return JsonResponse({'result':'fail', 'redirect':redirect})
     return JsonResponse({'result':'success', 'redirect':redirect})
 
+def AjxGetFormHTML(request):
+    _form_html = GetFormHTML(request.POST['csrfmiddlewaretoken'], request.POST['form_name'])
+    return JsonResponse({'form_data':_form_html})
+
+def AjxSaveForm2(request):
+    result, _form_html = SaveForm(request.POST['csrfmiddlewaretoken'], request.POST['form_name'], request.POST.dict())
+    return JsonResponse({'result':result, 'form_data':_form_html})
 
 def AjxFormData(request):
     form_name = request.POST['FormName']
@@ -162,8 +198,6 @@ def AjxFormData(request):
     fields = [(fd['Size'], fd['Label'], form[fd['Field']]) for fd in design['Fields']]
     _form_data = form_content_html(fields)
     return JsonResponse({'form_data':_form_data})
-
-
 
 def AjxProcOrderAgg(request):
     result = 'Fail'
@@ -207,7 +241,8 @@ def AjxTableData(request):
 
     # Get Objects
     thisorder = Order.objects.get(pk=request.POST['pk'])
-    data = Item.objects.filter(order_id=thisorder.pk)
+    _cols = "DESCRIPTION, CONDITION, RETAIL_AMOUNT, STATUS, CREATED_DATE, STATUS_DATE"
+    data = Item.objects.raw(f"SELECT 1 AS ID, {_cols}, COUNT(*) AS QTY FROM HOME_ITEM WHERE ORDER_ID = {thisorder.pk} GROUP BY {_cols}")
 
     # Get table HTML
     _table_data = table_html(fields, labels, data, fieldclass=fieldclass, id='item_tbl', edit_btn=design['Edit'], del_btn=design['Delete'])
@@ -224,10 +259,7 @@ def AjxCheckIn(request):
     add_notification(icon='save', heading="Checked In Item", body=item.__str__())
     return JsonResponse({})
 
-
-
-
-def save_form_data(request):
+def AjxSaveForm(request):
     form = FORMS(request, 'ProcessOrderForm', instance=request.POST['Instance'])
     response = 'fail'
     if form.is_valid():
@@ -236,7 +268,6 @@ def save_form_data(request):
         m.employee_id = request.POST['employee_id']
         m.status_date = request.POST['status_date']
         m = form.save()
-
 
         add_notification(icon='save', heading="Saved Item")
         response = 'success'
