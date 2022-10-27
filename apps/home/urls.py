@@ -60,6 +60,5 @@ urlpatterns = [
     path('AjxSaveForm', views.AjxSaveForm, name='AjxSaveForm'),
     path('AjxProcOrderAgg', views.AjxProcOrderAgg, name='AjxProcOrderAgg'),
     path('AjxGetFormHTML', views.AjxGetFormHTML, name='AjxGetFormHTML'),
-    path('AjxSaveForm2', views.AjxSaveForm2, name='AjxSaveForm2'),
 ]
     

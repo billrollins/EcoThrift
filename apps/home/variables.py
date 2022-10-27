@@ -22,8 +22,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from uuid import uuid4
 import re
 
-from ..custom.forms import EcoForm
-from ..custom.forms import EcoDateField, EcoEmailField, EcoFormField, EcoNumberField, EcoPasswordField, EcoTimeField
+from copy import copy, deepcopy
 
 ##################################################################################################################
 # Directories and Files
@@ -84,49 +83,11 @@ ICON_SQR_PLUS = 'fa-regular fa-square-plus'
 ICON_CHECK = 'fa-solid fa-check'
 ICON_MINUS = 'fa-solid fa-minus'
 ICON_PLUS = 'fa-solid fa-plus'
-ICON_EXCLAMATION = 'fa-solid fa-exclamation'\
-
-
-##################################################################################################################
-# Key/Value Functions
-##################################################################################################################
-
-def GET_KV_ARGS(s):
-    args = {}
-    if '=' in s:
-        for _kv in s.split(';'):
-            if '=' in _kv:
-                kv = _kv.split('=')
-                args[kv[0]] = kv[1]
-    return args
-    
-def GET_KEYS(dct, keys):
-    return dict((k, dct[k]) for k in keys if k in dct)
+ICON_EXCLAMATION = 'fa-solid fa-exclamation'
 
 ##################################################################################################################
 # String Functions
 ##################################################################################################################
-
-SLUGS = {
-    '&' : '-AMS', '*' : '-ASR', "'" : '-APT', '@' : '-CCA',
-    '%' : '-PCS', '^' : '-CFA', '+' : '-PLS', ':' : '-CLN',
-    '"' : '-QTM', '?' : '-QSM', ',' : '-CMA', '`' : '-GAC',
-    '~' : '-TLD', '!' : '-EXM', '#' : '-NBS', '$' : '-DLS',
-    '(' : '-LPT', ')' : '-RPT', '_' : '-LOL', '-' : '-HPM',
-    '=' : '-EQS', '{' : '-LCB', '}' : '-RCB', '|' : '-VTL',
-    '[' : '-LSB', ']' : '-RSB', '\\' : '-RSD', ';' : '-SCN',
-    '<' : '-LTS', '>' : '-GTS', '.' : '-FST', '/' : '-SLD'
-}
-
-def SLUGIFY(_str):
-    for _char, _slug in SLUGS.items():
-        _str = _str.replace(_char, _slug)
-    return _str
-
-def DESLUG(_str):
-    for _char, _slug in SLUGS.items():
-        _str = _str.replace(_slug, _char)
-    return _str
 
 def STR_FULL_NM(m):
     return f'{m.last_name}, {m.first_name}'
@@ -144,45 +105,10 @@ def STR_TODAY(delta=timedelta(0)):
     if type(delta) == int:
         delta = timedelta(days=delta)
     return STR_DATE(date.today() + delta)
-
     
 ##################################################################################################################
 # Key/Value or Dictionary Functions
 ##################################################################################################################
-
-TYPES = ['Form','Table']
-def TYPE(str):
-    for t in TYPES:
-        if f'{t};' in f'{str};':
-            return t
-    return None
-
-def DCT_FROM_GET(_get):
-    dct = {}
-    for kv in _get.split(f'?')[-1].split(';'):
-        kv = kv.split('=')
-        if len(kv)==2:
-            k = DESLUG(kv[0])
-            v = [ DESLUG(_v) for _v in kv[1].split(',') ]
-            if len(v) == 1: 
-                v = v[0]
-            dct[k] =  v
-    return dct
-
-def DOUBLE_FORMAT(str, dict1, dict2):
-    str = str.format(**dict1)
-    str = re.sub('<<', '{', str)
-    str = re.sub('>>', '}', str)
-    return str.format(**dict2)
-
-def GET_DCT_FROM_STR(prep_str):
-    dct = {}
-    for kv in prep_str.split('@@;'):
-        kv = kv.split('@@=')
-        print(kv)
-        if len(kv)==2:
-            dct[kv[0]] = kv[1].split('@@,') if '@@,' in kv[1] else kv[1]
-    return None
 
 def MAKE_DICT(obj):
     _dict = obj
@@ -218,7 +144,6 @@ def DICTS_FORMAT(str, dicts, cycles=3):
             for k,v in dict_kvs.items(): 
                 str = str.replace(f'{dict_name}[{k}]', f'{v}')
     return str
-
 
 ##################################################################################################################
 # Notifications
@@ -292,7 +217,33 @@ SITE_DESIGN = _get_site_design([
     ['table','table_field']
 ])
     
-SIDEBAR = SITE_DESIGN['Sidebar']
+SIDEBAR = [
+    {'Menu': 'Home', 'SubMenu': 'Dashboard', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'Dashboard', 'Icon': 'fas fa-couch'},
+    {'Menu': '', 'SubMenu': 'Profile', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'MyProfile', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'TimeClock', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'TimeClock', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Calendar', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'MyCalendar', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Add Event', 'Text': '', 'EndSub': 'End', 'EndMenu': 'End', 'Page': 'AddEvent', 'Icon': ''},
+    {'Menu': 'Operations', 'SubMenu': 'Inventory', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewInventory', 'Icon': 'fas fa-business-time'},
+    {'Menu': '', 'SubMenu': 'Orders', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewOrders', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'DropOff', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewDropoffs', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Items', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewItems', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Check-In', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'CheckIn', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Check-Out', 'Text': '', 'EndSub': 'End', 'EndMenu': 'End', 'Page': 'CheckOut', 'Icon': ''},
+    {'Menu': 'Management', 'SubMenu': 'Employees', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewEmployee', 'Icon': 'fas fa-chess'},
+    {'Menu': '', 'SubMenu': 'Consignors', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewConsignors', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Liquidators', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewLiquidators', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Schedule', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewSchedule', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Vacation', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewVacation', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Drawers', 'Text': '', 'EndSub': 'End', 'EndMenu': 'End', 'Page': 'ViewDrawers', 'Icon': ''},
+    {'Menu': 'Database', 'SubMenu': 'Stores', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewStores', 'Icon': 'fas fa-database'},
+    {'Menu': '', 'SubMenu': 'Departments', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewDepartments', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Positions', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewPositions', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Sections', 'Text': '', 'EndSub': 'End', 'EndMenu': '', 'Page': 'ViewSections', 'Icon': ''},
+    {'Menu': '', 'SubMenu': 'Locations', 'Text': '', 'EndSub': 'End', 'EndMenu': 'End', 'Page': 'ViewLocations', 'Icon': ''}
+]
+
+{'AddConsignor': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Consignors', 'Text': 'Add Consignor', 'Heading': 'Add Consignor Below', 'SubHeading': '<a href="/ViewConsignors" class="text-primary">View Consignors</a> to edit existing consignor.', 'Elements': []}, 'AddDepartment': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Add Department', 'Menu': 'Database', 'SubMenu': 'Departments', 'Text': 'Add Department', 'Heading': 'Add Department Below', 'SubHeading': '<a href="/ViewDepartments" class="text-primary">View Departments</a> to edit existing department.', 'Elements': [{'Element': 'AddDepartmentForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'AddDrawer': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Drawers', 'Text': 'Add Drawer', 'Heading': 'Add Drawer Below', 'SubHeading': '<a href="/ViewDrawers" class="text-primary">View Drawers</a> to edit existing drawer.', 'Elements': []}, 'AddDropoff': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Add Dropoff', 'Menu': 'Operations', 'SubMenu': 'DropOff', 'Text': 'Add DropOff', 'Heading': 'Add DropOff Below', 'SubHeading': '<a href="/ViewDropoffs" class="text-primary">View DropOffs</a> to edit existing dropoff.', 'Elements': [{'Element': 'AddDropoffForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'AddEmployee': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Employees', 'Text': 'Add Employee', 'Heading': 'Add Employee Below', 'SubHeading': '<a href="/ViewEmployee" class="text-primary">View Employees</a> to edit existing employee.', 'Elements': []}, 'AddInventory': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Operations', 'SubMenu': 'Inventory', 'Text': 'Add Inventory', 'Heading': 'Add Inventory Below', 'SubHeading': '<a href="/ViewInventory" class="text-primary">View Inventory</a> to edit existing inventory.', 'Elements': []}, 'AddLiquidator': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Add Liquidator', 'Menu': 'Management', 'SubMenu': 'Liquidators', 'Text': 'Add Liquidator', 'Heading': 'Add Liquidator Below', 'SubHeading': '<a href="/ViewLiquidators" class="text-primary">View Liquidators</a> to edit existing liquidator.', 'Elements': [{'Element': 'AddLiquidatorForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'AddLocation': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Add Location', 'Menu': 'Database', 'SubMenu': 'Locations', 'Text': 'Add Location', 'Heading': 'Add Location Below', 'SubHeading': '<a href="/ViewLocations" class="text-primary">View Locations</a> to edit existing location.', 'Elements': [{'Element': 'AddLocationForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'AddOrder': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Add Order', 'Menu': 'Operations', 'SubMenu': 'Orders', 'Text': 'Add Order', 'Heading': 'Add Order Below', 'SubHeading': '<a href="/ViewOrders" class="text-primary">View Orders</a> to edit existing order.', 'Elements': [{'Element': 'AddOrderForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'AddPosition': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Add Position', 'Menu': 'Database', 'SubMenu': 'Positions', 'Text': 'Add Position', 'Heading': 'Add Position Below', 'SubHeading': '<a href="/ViewPositions" class="text-primary">View Positions</a> to edit existing position.', 'Elements': [{'Element': 'AddPositionForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'AddSchedule': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Schedule', 'Text': 'Add Schedule', 'Heading': 'Add Schedule Below', 'SubHeading': '<a href="/ViewSchedule" class="text-primary">View Schedules</a> to edit existing schedule.', 'Elements': []}, 'AddSection': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Add Section', 'Menu': 'Database', 'SubMenu': 'Sections', 'Text': 'Add Section', 'Heading': 'Add Section Below', 'SubHeading': '<a href="/ViewSections" class="text-primary">View Sections</a> to edit existing section.', 'Elements': [{'Element': 'AddSectionForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'AddStore': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Add Store', 'Menu': 'Database', 'SubMenu': 'Stores', 'Text': 'Add Store', 'Heading': 'Add Store Below', 'SubHeading': '<a href="/ViewStores" class="text-primary">View Stores</a> to edit existing store.', 'Elements': [{'Element': 'AddStoreForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'AddVacation': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Vacation', 'Text': 'Add Vacation', 'Heading': 'Add Vacation Below', 'SubHeading': '<a href="/ViewVacation" class="text-primary">View Vacation</a> to edit existing vacation.', 'Elements': []}, 'EditConsignor': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Consignors', 'Text': 'Edit Consignor', 'Heading': 'Edit Consignor Below', 'SubHeading': 'or <a href="/ViewConsignors" class="text-primary">View Consignors</a>.', 'Elements': []}, 'EditDepartment': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Edit Department', 'Menu': 'Database', 'SubMenu': 'Departments', 'Text': 'Edit Department', 'Heading': 'Edit Department Below', 'SubHeading': 'or <a href="/ViewDepartments" class="text-primary">View Departments</a>.', 'Elements': [{'Element': 'EditDepartmentForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'EditDrawer': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Drawers', 'Text': 'Edit Drawer', 'Heading': 'Edit Drawer Below', 'SubHeading': 'or <a href="/ViewDrawers" class="text-primary">View Drawers</a>.', 'Elements': []}, 'EditDropoff': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Edit Dropoff', 'Menu': 'Operations', 'SubMenu': 'DropOff', 'Text': 'Edit DropOff', 'Heading': 'Edit DropOff Below', 'SubHeading': 'or <a href="/ViewDropoffs" class="text-primary">View DropOffs</a>.', 'Elements': [{'Element': 'EditDropoffForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'EditEmployee': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Employees', 'Text': 'Edit Employee', 'Heading': 
+'Edit Employee Below', 'SubHeading': 'or <a href="/ViewEmployee" class="text-primary">View Employees</a>.', 'Elements': []}, 'EditInventory': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Operations', 'SubMenu': 'Inventory', 'Text': 'Edit Inventory', 'Heading': 'Edit Inventory Below', 'SubHeading': 'or <a href="/ViewInventory" class="text-primary">View Inventory</a>.', 'Elements': []}, 'EditLiquidator': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Edit Liquidator', 'Menu': 'Management', 'SubMenu': 'Liquidators', 'Text': 'Edit Liquidator', 'Heading': 'Edit Liquidator Below', 'SubHeading': 'or <a href="/ViewLiquidators" class="text-primary">View Liquidators</a>.', 'Elements': [{'Element': 'EditLiquidatorForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'EditLocation': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Edit Location', 'Menu': 'Database', 'SubMenu': 'Locations', 'Text': 'Edit Location', 'Heading': 'Edit Location Below', 'SubHeading': 'or <a href="/ViewLocations" class="text-primary">View Locations</a>.', 'Elements': [{'Element': 'EditLocationForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'EditOrder': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Edit Order', 'Menu': 'Operations', 'SubMenu': 'Orders', 'Text': 'Edit Order', 'Heading': 'Edit Order Below', 'SubHeading': 'or <a href="/ViewOrders" class="text-primary">View Orders</a>.', 'Elements': [{'Element': 'EditOrderForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'EditPosition': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Edit Position', 'Menu': 'Database', 'SubMenu': 'Positions', 'Text': 'Edit Position', 'Heading': 'Edit Position Below', 'SubHeading': 'or <a href="/ViewPositions" class="text-primary">View Positions</a>.', 'Elements': [{'Element': 'EditPositionForm', 'Type': 'Form', 'RowCode': 'Both', 'JavaScript': ''}]}, 'EditSchedule': {'Type': 'Basic', 'Template': 'home/base-custom.html', 'Title': 'Dashboard', 'Menu': 'Management', 'SubMenu': 'Schedule', 'Text': 'Edit Schedule', 'Heading': 'Edit Schedule Below', 'SubHeading': 'or <a href="/ViewSc
 PAGE_DESIGN = SITE_DESIGN['Page']
 META_FORM_DESIGN = SITE_DESIGN['MetaForm']
 FORM_DESIGN = SITE_DESIGN['Form']

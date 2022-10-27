@@ -76,94 +76,97 @@
 
   <!-- Ajax Functions -->
   <script type="text/javascript">
-      function Ajx_GetFormHTML(form_name) {
-          $.ajax({
-              type: 'POST',
-              url: '/AjxGetFormHTML',
-              data: {
-                  'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
-                  'form_name': form_name,
-              },
-              success: function (data) {                    
-                  var form_content = $('div#' + form_name)[0];
-                  form_content.innerHTML = data['form_data'];
+
+    // Ajax Get Form Html
+    function Ajx_GetFormHTML(form_name) {
+        $.ajax({
+            type: 'POST',
+            url: '/AjxGetFormHTML',
+            data: {
+                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
+                'form_name': form_name,
+            },
+            success: function (data) {                    
+                var form_content = $('div#' + form_name)[0];
+                form_content.innerHTML = data['form_data'];
+            }
+        });
+    };
+
+  // Ajax Save Form
+  function Ajx_SaveForm(form_name) {
+      var form_content = $('#'+form_name)[0];
+      var fd = new FormData(form_content);
+      fd.append( 'csrfmiddlewaretoken', $("input[name=csrfmiddlewaretoken]").val() );
+      fd.append( 'form_name', form_name);
+
+      $.ajax({
+          type: 'POST',
+          url: '/AjxSaveForm',
+          data: fd,
+          processData: false,
+          contentType: false,
+          success: function (data) {
+              if (data['result'] == 'fail'){
+                Swal.fire(
+                  'Bad job!',
+                  'Form Errors',
+                  'warning'
+                )
+              } else {
+                Swal.fire(
+                  'Good job!',
+                  'Form Saved!',
+                  'success'
+                )
               }
-          });
-      };
+              form_content.innerHTML = data['form_data'];
+          }
+      });
+    };
 
-function Ajx_SaveForm2(form_name) {
-  var form_content = $('#'+form_name)[0];
-  var fd = new FormData(form_content);
-  fd.append( 'csrfmiddlewaretoken', $("input[name=csrfmiddlewaretoken]").val() );
-  fd.append( 'form_name', form_name);
-
-  $.ajax({
+  /*
+  Ajax Save New Form
+  Same as above but creates a new object instead of updating an existing object
+  */
+  function Ajx_SaveNewForm(form_name) {
+    var form_content = $('#'+form_name)[0];
+    var fd = new FormData(form_content);
+    fd.append( 'csrfmiddlewaretoken', $("input[name=csrfmiddlewaretoken]").val() );
+    fd.append( 'form_name', form_name);
+    $.ajax({
       type: 'POST',
       url: '/AjxSaveForm2',
       data: fd,
       processData: false,
       contentType: false,
       success: function (data) {
-          if (data['result'] == 'fail'){
-            Swal.fire(
-              'Bad job!',
-              'Form Errors',
-              'warning'
-            )
-          } else {
-            Swal.fire(
-              'Good job!',
-              'Form Saved!',
-              'success'
-            )
-          }
-          form_content.innerHTML = data['form_data'];
+      if (data['result'] == 'fail'){
+        Swal.fire(
+          'Bad job!',
+          'Form Errors',
+          'warning'
+        )
+      } else {
+        Swal.fire(
+          'Good job!',
+          'Form Saved!',
+          'success'
+        )
       }
-  });
-};
-
-function Ajx_SaveNewForm(form_name) {
-  var form_content = $('#'+form_name)[0];
-  var fd = new FormData(form_content);
-  fd.append( 'csrfmiddlewaretoken', $("input[name=csrfmiddlewaretoken]").val() );
-  fd.append( 'form_name', form_name);
-
-  $.ajax({
-      type: 'POST',
-      url: '/AjxSaveForm2',
-      data: fd,
-      processData: false,
-      contentType: false,
-      success: function (data) {
-          if (data['result'] == 'fail'){
-            Swal.fire(
-              'Bad job!',
-              'Form Errors',
-              'warning'
-            )
-          } else {
-            Swal.fire(
-              'Good job!',
-              'Form Saved!',
-              'success'
-            )
-          }
-          form_content.innerHTML = data['form_data'];
+      form_content.innerHTML = data['form_data'];
       }
-  });
-};
+    });
+  };
 
-  </script>
-    
-  <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-  <script src="/static/assets/js/soft-ui-dashboard.js?v=1.0.5"></script>
+</script>
 
-  <!-- Page JS -->
-  {% block javascripts %}
+<!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
+<script src="/static/assets/js/soft-ui-dashboard.js?v=1.0.5"></script>
 
-  {% endblock javascripts %}
-
+<!-- Page JS -->
+{% block javascripts %}
+{% endblock javascripts %}
 
 </body>
-
 </html>

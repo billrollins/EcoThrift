@@ -198,13 +198,3 @@ POSITION_CHOICES = [(o.pk, o.name) for o in Position.objects.all()]
 
 ORDER_CHOICES = [(o.pk, f'#{o.order_number}') for o in Order.objects.all()]
 DROPOFF_CHOICES = [(o.pk, f'{o.id}|{o.comments[:50]}') for o in Dropoff.objects.all()]
-
-
-
-
-
-
-
-
-
-

@@ -1,5 +1,4 @@
-from apps.custom.forms import EcoTextChoiceField
-from .models import *
+from ..custom.forms import *
 
 class BasicForm(ModelForm):
   def __init__(self, *args, **kwargs):
@@ -10,12 +9,12 @@ class BasicForm(ModelForm):
       if form_field['Class']: widget.attrs['class'] = form_field['Class']
       if form_field['Type']: widget.input_type = form_field['Type']
     return
+  
+
   def get_dict(self):
     _dict = self.fields
     _dict['pk'] = self.instance.pk
     return _dict
-
-
 
 #############################################################
 # Paste Form Code Below this line
@@ -96,8 +95,6 @@ class CheckInOrderForm(BasicForm):
 #############################################################	
 
 def FORMS(request, form_name, instance=None, get_cur_data=False):
-  if TYPE(form_name) != 'Form': 
-    return None
   form_class = globals()[form_name]
   model_class = form_class.Meta.model  
   if instance:
@@ -141,13 +138,13 @@ def META_FORMS(meta_form_name, request):
 # Custom Forms
 #############################################################
 
-FormSaveBtn = EcoForm.B_( label='Save', onclick="Ajx_SaveForm2('form_dict[name]')", icon=ICON_CHECK)
+FormSaveBtn = EcoForm.B_( label='Save', onclick="Ajx_SaveForm('form_dict[name]')", icon=ICON_CHECK)
 FormSaveNewBtn = EcoForm.B_( label='Save', onclick="Ajx_SaveNewForm('form_dict[name]')", icon=ICON_PLUS)
 
 ProcessOrderForm = EcoForm(
   name='ProcessOrderForm',
   fields=[
-        EcoFormField(   'department' , label='Department'   , required = True , col_size = 3  , attrs={'maxlength': 100} ),
+        EcoFormField(   'department'       , label='Department'   , required = True , col_size = 3  , attrs={'maxlength': 100} ),
         EcoFormField(   'item_class'       , label='Item Class'   , required = False, col_size = 3  , attrs={'maxlength': 100} ),
         EcoFormField(   'category'         , label='Category'     , required = False, col_size = 3  , attrs={'maxlength': 100} ),
         EcoFormField(   'subcategory'      , label='Subcategory'  , required = False, col_size = 3  , attrs={'maxlength': 100} ),
@@ -162,11 +159,17 @@ ProcessOrderForm = EcoForm(
     (EcoForm.P_('Add items here or edit by clicking the table below', size=5, _class="m-2"), 0, 0),
     (FormSaveNewBtn, 0, 2),
     (FormSaveBtn, 1, 2),
-  ]
+  ],
+  objects = { # {Form Field Name : Object Field Name}
+    'item': (Item, ['department', 'item_class', 'category', 'subcategory', 'brand', 'model', 'description', 'status', 'retail_amount'])
+  }
 )
 
-def GET_FORM(nm):
+def GET_NEW_FORM(nm, pks=None):
   _form_dict = {
-    'ProcessOrderForm': ProcessOrderForm
+    'ProcessOrderForm': deepcopy(ProcessOrderForm)
   }
-  return _form_dict[nm]
+  _form = _form_dict[nm]
+  if pks:
+    _form.set_pks(pks)
+  return _form

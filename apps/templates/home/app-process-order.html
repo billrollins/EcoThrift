@@ -1,5 +1,5 @@
 <!-- Layout --> 
-{% extends 'layouts/base.html' %}
+{% extends 'layouts/AjxLayout.html' %}
 
 <!-- Tags --> 
 {% load custom_tags %}
@@ -35,7 +35,6 @@
     </div>
     
     <!-- Table Card--> 
-
     <div class="card m-4">
 
         <!-- Card Heading and Add Button -->
@@ -61,12 +60,13 @@
 
         <div class="card-body">
             <div id="table-content">Loading table data</div>
-            <input type="hidden" name="order_pk" value="{{ Order.pk }}">
-            <input type="hidden" name="employee_pk" value="{{ Employee.pk }}">
-            <input type="hidden" name="item_pk" value="">
-            <input type="hidden" name="today" value="{{ Today }}">
         </div>
     </div>
+    
+    <input type="hidden" name="order_pk" value="{{ Order.pk }}">
+    <input type="hidden" name="employee_pk" value="{{ Employee.pk }}">
+    <input type="hidden" name="item_pk" value="">
+    <input type="hidden" name="today" value="{{ Today }}">
 </div>
 {% endblock content %}
 
@@ -76,42 +76,6 @@
 
 <!-- Ajax JavaScript -->
 <script type="text/javascript">
-function Ajx_SaveForm(pk) {
-    console.log(pk);
-    $.ajax({
-        type: 'POST',
-        url: '/AjxSaveForm',
-        data: {
-            'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
-            'FormName': 'ProcessOrderForm',
-            'Instance': pk,
-            'RedirectValid': window.location.href,
-            'RedirectInvalid': window.location.href,
-
-            'department': document.forms[0].department.value,
-            'item_class': document.forms[0].item_class.value,
-            'category': document.forms[0].category.value,
-            'subcategory': document.forms[0].subcategory.value,
-            'brand': document.forms[0].brand.value,
-            'model': document.forms[0].model.value,
-            'description': document.forms[0].description.value,
-            'condition': document.forms[0].condition.value,
-            'status': document.forms[0].status.value,
-            'units': document.forms[0].units.value,
-            'unit_retail': document.forms[0].unit_retail.value,
-
-            'order_id': $("input[name=order_pk]").val(),
-            'employee_id': $("input[name=employee_pk]").val(),
-            'status_date': $("input[name=today]").val(),
-            'pk': $("input[name=item_pk]").val(),
-        },
-        success: function (data) {
-            console.log(data['response']);
-            Ajx_GetForm("");
-            Ajx_GetTable("");
-        }
-    });
-};
 
 function Ajx_GetForm(item_id) {
     console.log(item_id);
@@ -199,59 +163,6 @@ function Ajx_ProcManifest
 };
 
 Ajx_GetTable("");
-</script>
-<!-- Alerts -->
-<script src="/static/assets/js/plugins/sweetalert.min.js"></script>
-
-
-<!-- Ajax Functions -->
-<script type="text/javascript">
-    function Ajx_GetFormHTML(form_name) {
-        $.ajax({
-            type: 'POST',
-            url: '/AjxGetFormHTML',
-            data: {
-                'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val(),
-                'form_name': form_name,
-            },
-            success: function (data) {                    
-                var form_content = $('div#' + form_name)[0];
-                form_content.innerHTML = data['form_data'];
-            }
-        });
-    };
-
-    function Ajx_SaveForm2(form_name) {
-      var form_content = $('#'+form_name)[0];
-      var fd = new FormData(form_content);
-      fd.append( 'csrfmiddlewaretoken', $("input[name=csrfmiddlewaretoken]").val() );
-      fd.append( 'form_name', form_name);
-
-      $.ajax({
-          type: 'POST',
-          url: '/AjxSaveForm2',
-          data: fd,
-          processData: false,
-          contentType: false,
-          success: function (data) {
-              if (data['result'] == 'fail'){
-                Swal.fire(
-                  'Bad job!',
-                  'Form Errors',
-                  'warning'
-                )
-              } else {
-                Swal.fire(
-                  'Good job!',
-                  'Form Saved!',
-                  'success'
-                )
-              }
-              form_content.innerHTML = data['form_data'];
-          }
-      });
-    };
-
 </script>
 
 {% endblock javascripts %}

@@ -37,7 +37,6 @@ def pages(request):
 
 def Dashboard(context):
     _csrf_token = context['request'].COOKIES['csrftoken']
-    ClearForm('DashForm')
     context['form_html'] = GetFormHTML(_csrf_token, 'DashForm')
     template = loader.get_template('home/dashboard.html')
     return HttpResponse(template.render(context, context['request']))
@@ -89,27 +88,28 @@ def form_post(context, request):
     add_notification(icon='warn', heading=msg_head, body=msg_body)
     return redirect(invalid_redirect)
 
+##################################################################################################################
+# Custom Form Functions
+##################################################################################################################
+
 def GetFormHTML(csrf_token, form_name, clear=False):
-    if clear: ClearForm(form_name)
-    _form = GET_FORM(form_name)
+    _form = GET_NEW_FORM(form_name)
+    if clear: _form.clear()
     _form_html = mark_safe(_form.get_html(csrf_token))
     return _form_html
 
-def ClearForm(form_name): 
-    _form = GET_FORM(form_name)
-    _form.clear()
-    return
-
-def SaveForm(csrf_token, form_name, val_dict):
-    _form = GET_FORM(form_name)
-    if _form.is_valid(val_dict):
+def SaveForm(csrf_token, form_name, val_dict, pk_dict={}):
+    _form = GET_NEW_FORM(form_name)
+    vals = _form.update_pks(pk_dict)
+    vals.update(val_dict)
+    if _form.is_valid(vals):
         result = 'success'
-        ClearForm(form_name)
+        _form.save()
+        _form.clear()
     else:
         result = 'fail'
     _form_html = mark_safe(_form.get_html(csrf_token))
     return result, _form_html
-
 
 ##################################################################################################################
 # @receivers
@@ -187,7 +187,7 @@ def AjxGetFormHTML(request):
     _form_html = GetFormHTML(request.POST['csrfmiddlewaretoken'], request.POST['form_name'])
     return JsonResponse({'form_data':_form_html})
 
-def AjxSaveForm2(request):
+def AjxSaveForm(request):
     result, _form_html = SaveForm(request.POST['csrfmiddlewaretoken'], request.POST['form_name'], request.POST.dict())
     return JsonResponse({'result':result, 'form_data':_form_html})
 
@@ -258,22 +258,3 @@ def AjxCheckIn(request):
     item.save()
     add_notification(icon='save', heading="Checked In Item", body=item.__str__())
     return JsonResponse({})
-
-def AjxSaveForm(request):
-    form = FORMS(request, 'ProcessOrderForm', instance=request.POST['Instance'])
-    response = 'fail'
-    if form.is_valid():
-        m = form.save()
-        m.order_id = request.POST['order_id']
-        m.employee_id = request.POST['employee_id']
-        m.status_date = request.POST['status_date']
-        m = form.save()
-
-        add_notification(icon='save', heading="Saved Item")
-        response = 'success'
-    else:    
-        add_notification(icon='warn', heading="Could not save Item")
-
-    return JsonResponse({'response':response})
-
-    

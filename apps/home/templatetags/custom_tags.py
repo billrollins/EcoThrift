@@ -18,10 +18,6 @@ def _Del(obj):
 def _Format(str, dict):
     return mark_safe(FORMAT(str, dict))
 
-@register.filter()
-def _Format2(str, dict1, dict2):
-    return mark_safe(DOUBLE_FORMAT(str, dict1, dict2))
-
 ##################################################################################################################
 # Colors
 ##################################################################################################################
